@@ -33,9 +33,9 @@ NMRA規格の信号を受信して動作する、DCCデコーダーのファー�
 
 このデコーダ基板設計データには、下記の内容が含まれています。
 
-  * [K3066RA](https://github.com/ytsurui/dcc-decoder2-board/docs/readme-K3066.md)
-  * [K3057RA](https://github.com/ytsurui/dcc-decoder2-board/docs/readme-K3057.md)
-  * [M02F7RA Roomlight-N](https://github.com/ytsurui/dcc-decoder2-board/docs/readme-roomlight-n.md)
+  * [K3066RA](https://github.com/ytsurui/dcc-decoder2-pcbdata/blob/main/docs/readme-K3066.md)
+  * [K3057RA](https://github.com/ytsurui/dcc-decoder2-pcbdata/blob/main/docs/readme-K3057.md)
+  * [M02F7RA Roomlight-N](https://github.com/ytsurui/dcc-decoder2-pcbdata/blob/main/docs/readme-roomlight-n.md)
 
 回路を独自に組んで動かす場合は、基板設計データに含まれる回路図を参考にしてください。
 
