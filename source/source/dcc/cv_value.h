@@ -63,9 +63,9 @@
 #define CV53_DEFAULT	10		// Automatic Brake Acceleration Rate
 #define CV54_DEFAULT	3		// Automatic Brake Deacceleration Rate
 
-#define CV55_DEFAULT	40		// BEMF PID Feedback Kp Raw Value
-#define CV56_DEFAULT	25		// BEMF PID Feedback Ki Raw Value
-#define CV57_DEFAULT	100		// BEMF PID Feedback Kd Raw Value
+#define CV55_DEFAULT	30		// BEMF PID Feedback Kp Raw Value
+#define CV56_DEFAULT	10		// BEMF PID Feedback Ki Raw Value
+#define CV57_DEFAULT	40		// BEMF PID Feedback Kd Raw Value
 #define CV138_DEFAULT	100		// BEMF PID Feedback ADC Scaler Max Value
 
 #define CV58_DEFAULT	0x7F	// Analog Max Speed

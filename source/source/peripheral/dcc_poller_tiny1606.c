@@ -11,6 +11,8 @@
 #include "uart.h"
 #include "../dcc/railcom.h"
 
+#include "../dcc/cv_value.h"
+
 
 uint8_t portTestFlag = 0;
 
@@ -43,15 +45,21 @@ uint8_t dccRecvPacketCacheEnableFlag;
 uint8_t railcomSendFlag = 0;
 
 /* BaseClock = 20MHz/2 = 10MHz */
-#define DCC_PULSE_LENGTH_ONE_MIN	220		//44us (counter 1cycle = 200ns @ 8MHz)
-#define DCC_PULSE_LENGTH_ONE_MAX	450		//80us
+#define DCC_PULSE_LENGTH_ONE_MIN	220		//44us (counter 1cycle = 200ns @ 10MHz)
+#define DCC_PULSE_LENGTH_ONE_MAX	450		//80us + 5us
 #define DCC_PULSE_LENGTH_ZERO_MIN	500		//90us
 #define DCC_PULSE_LENGTH_ZERO_MAX	50000	//10000us
 //#define DCC_PULSE_LENGTH_ZERO_MAX	20000	//20000us
 
-#define DCC_PULSE_LENGTH_RAILCOM_CUTOUT_MIN		130	// 22us
-#define DCC_PULSE_LENGTH_RAILCOM_CUTOUT_MAX		190	// 32us
+//#define DCC_PULSE_LENGTH_RAILCOM_CUTOUT_MIN		130	// 22us
+//#define DCC_PULSE_LENGTH_RAILCOM_CUTOUT_MAX		190	// 32us
+//#define DCC_PULSE_LENGTH_RAILCOM_CHANNEL1_START	30	// 40us (32us + 8us)
+
+#define DCC_PULSE_LENGTH_RAILCOM_CUTOUT_MIN		130	// 26us
+#define DCC_PULSE_LENGTH_RAILCOM_CUTOUT_MAX		190	// 32us + 6us
 #define DCC_PULSE_LENGTH_RAILCOM_CHANNEL1_START	30	// 40us (32us + 8us)
+
+#define DCC_PULSE_LENGTH_RAILCOM_CHANNEL1_POLLER_START	60
 
 
 //void sendPacketToUart(void);
@@ -78,9 +86,19 @@ uint16_t ABCpollerTimerRight;
 uint8_t ABCpollerExecFlag = 0;
 #define ABC_POLLER_INTERVAL	200
 
+void DCCpollerRightReset(void);
+void DCCpollerLeftReset(void);
+
+uint8_t railcomPollerFlag = 0;
+uint16_t railcomPollerCounter = 0;
+
+uint16_t railcomCutoutChannel1Timming = 0;
+
+
 
 ISR(PORTA_PORT_vect)
 {
+	
 	PORTA.INTFLAGS |= (PIN2_bm | PIN4_bm);
 	
 	if (PORTA.IN & PIN2_bm) {		// RAIL+
@@ -104,6 +122,8 @@ ISR(PORTA_PORT_vect)
 			}
 			
 		}
+		railcomCutoutFlag = 0;
+		railcomPollerFlag = 0;
 	} else {
 		// Start Right Count
 		if (oldInputPortStat & 0x01) {
@@ -111,6 +131,7 @@ ISR(PORTA_PORT_vect)
 			dccTimerRightStart = TCB0.CNT;
 			ABCpollerExecFlag &= ~0x01;
 		}
+		
 	}
 	
 	if (PORTA.IN & PIN4_bm) {		// RAIL-
@@ -134,6 +155,8 @@ ISR(PORTA_PORT_vect)
 			}
 			
 		}
+		railcomCutoutFlag = 0;
+		railcomPollerFlag = 0;
 	} else {
 		// Start Left Count
 		if (oldInputPortStat & 0x02) {
@@ -141,6 +164,7 @@ ISR(PORTA_PORT_vect)
 			dccTimerLeftStart = TCB0.CNT;
 			ABCpollerExecFlag &= ~0x02;
 		}
+		
 	}
 	
 }
@@ -175,35 +199,6 @@ uint8_t readAnalogStat(void)
 	return (1);	// Analog Operation
 }
 
-/*
-uint8_t readAnalogStat(void) {
-	if ((analogCheckCounterRight > ANALOG_COUNTER_THRESHOLD) || (analogCheckCounterLeft > ANALOG_COUNTER_THRESHOLD)) {
-		if (PORTA.IN & PIN2_bm) {
-			// Analog, Forward
-			return (1);
-		} else if (PORTA.IN & PIN4_bm) {
-			// Analog, Backward
-			return (2);
-		} else {
-			if (~PORTA.IN & PIN2_bm) {
-				// Backward
-				return (2);
-			} else if (~PORTA.IN & PIN4_bm) {
-				// Forward
-				return (1);
-			}
-		}
-		return (0);
-	}
-	
-	if (analogCheckCounterRight > ANALOG_COUNTER_THRESHOLD) {
-		return (1);		// Analog, Forward
-	} else if (analogCheckCounterLeft > ANALOG_COUNTER_THRESHOLD) {
-		return (2);		// Analog, Backward
-	}
-	return (0);		// Digital
-}
-*/
 
 void initDCCpoller(void)
 {
@@ -244,29 +239,65 @@ void dccPacketShifter(uint8_t* recvPacketLength, uint8_t* recvPacket)
 	uint16_t dccTimerTemp;
 	uint16_t dccTimerTemp2;
 	
-	if (railcomCutoutFlag) {
-		if (railcomCutoutCounter < TCB0.CNT) {
-			newCounter = TCB0.CNT - railcomCutoutCounter;
-		} else {
-			newCounter = 0xD000 + TCB0.CNT - railcomCutoutCounter;
-		}
+	uint16_t railcomPollerCalc;
+	
+	if (CV29 & 0x08) {
 		
-		if (newCounter >= DCC_PULSE_LENGTH_RAILCOM_CHANNEL1_START) {
-			/*
-			if (railcomSendMode == 0) {
-				channel1Send(0x01, 0x84);
-				railcomSendMode = 1;
-			} else if (railcomSendMode == 1) {
-				channel1Send(0x02, 0xE7);
-				railcomSendMode = 0;
+		if (railcomCutoutFlag) {
+			if ((PORTA.IN & PIN2_bm) || (PORTA.IN & PIN4_bm)) {
+				railcomCutoutFlag = 0;
+				railcomPollerFlag = 0;
+				railcomPollerCounter = 0;
+				return;
 			}
-			*/
-			railcomSendFlag |= 0x01;	// Channel1
-			railcomCutoutFlag = 0;
+			
+			if (railcomCutoutCounter < TCB0.CNT) {
+				newCounter = TCB0.CNT - railcomCutoutCounter;
+			} else {
+				newCounter = 0xD000 + TCB0.CNT - railcomCutoutCounter;
+			}
+		
+			//if (newCounter >= DCC_PULSE_LENGTH_RAILCOM_CHANNEL1_START) {
+			if (railcomCutoutFlag == 1) {
+				if (newCounter >= railcomCutoutChannel1Timming) {
+					railcomSendFlag |= 0x01;	// Channel1
+					railcomCutoutFlag = 2;
+				}
+			} else if (railcomCutoutFlag == 2) {
+				
+			}
+		} else if (railcomPollerFlag) {
+			if ((PORTA.IN & PIN2_bm) || (PORTA.IN & PIN4_bm)) {
+				railcomCutoutFlag = 0;
+				railcomPollerFlag = 0;
+				railcomPollerCounter = 0;
+				return;
+			}
+			
+			if (railcomPollerCounter < TCB0.CNT) {
+				railcomPollerCalc = TCB0.CNT - railcomPollerCounter;
+			} else {
+				railcomPollerCalc = 0xD000 - railcomPollerCounter + TCB0.CNT;
+			}
+		
+			if (railcomPollerCalc > DCC_PULSE_LENGTH_RAILCOM_CUTOUT_MIN) {
+				if (railcomCutoutFlag == 0) {
+					railcomCutoutFlag = 1;
+					railcomCutoutCounter = TCB0.CNT;
+					railcomCutoutChannel1Timming = DCC_PULSE_LENGTH_RAILCOM_CHANNEL1_POLLER_START;
+				}
+				railcomPollerFlag = 0;
+				return;
+			}
+		} else if ((~PORTA.IN & PIN2_bm) && (~PORTA.IN & PIN4_bm)) {
+			if (railcomPollerFlag == 0) {
+				railcomPollerCounter = TCB0.CNT;
+				railcomPollerFlag = 1;
+			}
 		}
 	}
 	
-	
+		
 	if ((dccTimerCounter == 0) && (dccTimerCounterLeft == 0)) return;
 	dccTimerTemp = dccTimerCounterLeft;
 	dccTimerTemp2 = dccTimerCounter;
@@ -275,14 +306,16 @@ void dccPacketShifter(uint8_t* recvPacketLength, uint8_t* recvPacket)
 	
 	//PORTA.OUTTGL = PIN3_bm;
 	
-	
-	if (checkRailcomCutout(dccTimerTemp, dccTimerTemp2)) {
-		if (railcomCutoutFlag == 0) {
-			railcomCutoutFlag = 1;
-			railcomCutoutCounter = TCB0.CNT;
-		}
+	if (CV29 & 0x08) {
+		if (checkRailcomCutout(dccTimerTemp, dccTimerTemp2)) {
+			if (railcomCutoutFlag == 0) {
+				railcomCutoutFlag = 1;
+				railcomCutoutCounter = TCB0.CNT;
+				railcomCutoutChannel1Timming = DCC_PULSE_LENGTH_RAILCOM_CHANNEL1_START;
+			}
 		
-		return;
+			return;
+		}
 	}
 	
 	
