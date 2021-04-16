@@ -292,6 +292,7 @@ uint8_t get_speed_8bit(void)
 
 void captureBEMF(void)
 {
+	if (~CV60 & 0x80) return;
 	if (bemfReadFlag == 0) bemfReadFlag = 1;
 }
 
@@ -321,7 +322,7 @@ void calcMotorPID(void) {
 	Ki = CV55_57[1];	// CV56
 	Kd = CV55_57[2];	// CV57
 	
-	bemfADCfixedValue = (bemfAdcValue >> 1) * 255 / CV131;	// CV131 = 175: 2.96V ADC MAX to Scale 0-255
+	bemfADCfixedValue = (bemfAdcValue >> 1) * 255 / CV138;	// CV138 = 175: 2.96V ADC MAX to Scale 0-255
 	if (bemfADCfixedValue > 255) bemfADCfixedValue = 255;
 	
 	P = (int16_t)throttleSPDvalue - bemfADCfixedValue;

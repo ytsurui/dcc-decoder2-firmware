@@ -89,7 +89,7 @@ void dccNormalOperation(uint8_t packetLength, uint8_t packetData[])
 	uint8_t packetInstruction;
 	uint8_t spdCache;
 	uint8_t i;
-	
+		
 	if (packetLength == 3) {
 		if ((packetData[0] == 0) && (packetData[1] == 0) && (packetData[2] == 0)) {
 			// Reset
@@ -139,9 +139,19 @@ void dccNormalOperation(uint8_t packetLength, uint8_t packetData[])
 		case 0x00:
 			break;
 		case 0x20:
+			
+			if (packetLength != (packetReadStartPos + 3)) {
+				return;
+			}
+			
+			
+			if ((packetData[packetReadStartPos] & 0x1F) != 0x1F) return;
+			
 			// Advanced Instructions (128-step)
 			spdCache = packetData[packetReadStartPos + 1] & 0x7F;
-			if (speed128stepCache == spdCache) {
+			
+			if (1) {
+			//if (speed128stepCache == spdCache) {
 				speed128stepCache = 0xFF;
 				
 				if (packetData[packetReadStartPos + 1] & 0x80) {
@@ -159,7 +169,6 @@ void dccNormalOperation(uint8_t packetLength, uint8_t packetData[])
 					else directionFlag = 1;
 				}
 				setspeed_128step(directionFlag, spdCache);
-				speed128stepCache = 0xFF;
 			} else {
 				speed128stepCache = spdCache;
 			}
@@ -168,7 +177,12 @@ void dccNormalOperation(uint8_t packetLength, uint8_t packetData[])
 		case 0x40:
 		case 0x60:
 			// Speed Control (14-step, 28-step)
-			if (speed28stepCache == packetData[packetReadStartPos]) {
+			if (packetLength != (packetReadStartPos + 2)) {
+				return;
+			}
+			
+			if (1) {
+			//if (speed28stepCache == packetData[packetReadStartPos]) {
 				speed28stepCache = 0xFF;
 				
 				if (packetInstruction & 0x20) {
@@ -192,24 +206,16 @@ void dccNormalOperation(uint8_t packetLength, uint8_t packetData[])
 			break;
 		case 0x80:
 			// Function1 (F0-F4)
-			/*
-			if (packetData[packetReadStartPos] & 0x01) {
-				PORTA.OUTSET = PIN3_bm;
-			} else {
-				PORTA.OUTCLR = PIN3_bm;
+			if (packetLength != (packetReadStartPos + 2)) {
+				return;
 			}
-			
-			if (packetData[packetReadStartPos] & 0x02) {
-				PORTB.OUTSET = PIN3_bm;
-			} else {
-				PORTB.OUTCLR = PIN3_bm;
-			}
-			*/
-			
 			funcCtrl(1, packetData[packetReadStartPos], directionFlag);
 			break;
 		case 0xA0:
 			// Function2 (F5-F8, F9-F12)
+			if (packetLength != (packetReadStartPos + 2)) {
+				return;
+			}
 			if (packetData[packetReadStartPos] & 0x10) {
 				// F5-F8
 				funcCtrl(2, packetData[packetReadStartPos], directionFlag);

@@ -79,7 +79,7 @@ uint16_t analogCheckCounterLeft = 0;
 */
 
 uint16_t dccTimeoutCounter = 0;
-#define DCCTIMEOUT_COUNTER_MAX	300
+#define DCCTIMEOUT_COUNTER_MAX	800
 
 uint16_t ABCpollerTimerLeft;
 uint16_t ABCpollerTimerRight;
@@ -94,77 +94,136 @@ uint16_t railcomPollerCounter = 0;
 
 uint16_t railcomCutoutChannel1Timming = 0;
 
+/* DCC Pin Checker Funcs/Variables */
+uint8_t oldPortStatFlag = 0;
+uint8_t portChecker(void);
+void portReader(uint8_t chkFlag);
 
 
 ISR(PORTA_PORT_vect)
 {
-	
 	PORTA.INTFLAGS |= (PIN2_bm | PIN4_bm);
+	portReader(portChecker());	
+}
+
+uint8_t portChecker(void) {
+	uint8_t chFlag = 0;
 	
-	if (PORTA.IN & PIN2_bm) {		// RAIL+
-		if ((oldInputPortStat & 0x01) == 0) {
-			oldInputPortStat |= 0x01;
-			
-			if (dccTimerRightStart < TCB0.CNT) {
-				dccTimerCounter = TCB0.CNT - dccTimerRightStart;
-			} else {
-				dccTimerCounter = 0xD000 - dccTimerRightStart + TCB0.CNT;
-			}
-			
-			//if (analogCheckCounterRight > ANALOG_COUNTER_DECREASE_VALUE) analogCheckCounterRight -= ANALOG_COUNTER_DECREASE_VALUE;
-			//else analogCheckCounterRight = 0;
-			
-			ABCpollerExecFlag |= 0x01;
-			if ((0xD000 - ABC_POLLER_INTERVAL) < TCB0.CNT) {
-				ABCpollerTimerRight = (TCB0.CNT + ABC_POLLER_INTERVAL) - 0xD000;
-			} else {
-				ABCpollerTimerRight = TCB0.CNT + ABC_POLLER_INTERVAL;
-			}
-			
+	if ((oldPortStatFlag & PIN2_bm) != (PORTA.IN & PIN2_bm)) {
+		chFlag |= 0x01;
+		if (PORTA.IN & PIN2_bm) {
+			oldPortStatFlag |= PIN2_bm;
+		} else {
+			oldPortStatFlag &= ~PIN2_bm;
 		}
-		railcomCutoutFlag = 0;
-		railcomPollerFlag = 0;
-	} else {
-		// Start Right Count
-		if (oldInputPortStat & 0x01) {
-			oldInputPortStat &= ~0x01;
-			dccTimerRightStart = TCB0.CNT;
-			ABCpollerExecFlag &= ~0x01;
+	}
+	
+	if ((oldPortStatFlag & PIN4_bm) != (PORTA.IN & PIN4_bm)) {
+		chFlag |= 0x02;
+		if (PORTA.IN & PIN4_bm) {
+			oldPortStatFlag |= PIN4_bm;
+		} else {
+			oldPortStatFlag &= ~PIN4_bm;
+		}
+	}
+	
+	return (chFlag);
+}
+
+void portReader(uint8_t chkFlag) {
+	
+	if (chkFlag & 0x01) {
+
+		if (oldPortStatFlag & PIN2_bm) {	// RAIL+
+		//if (PORTA.IN & PIN2_bm) {		// RAIL+
+			if ((oldInputPortStat & 0x01) == 0) {
+				oldInputPortStat |= 0x01;
+			
+				if (dccTimerRightStart < TCB0.CNT) {
+					dccTimerCounter = TCB0.CNT - dccTimerRightStart;
+					} else {
+					dccTimerCounter = 0xD000 - dccTimerRightStart + TCB0.CNT;
+				}
+						
+				ABCpollerExecFlag |= 0x01;
+				if ((0xD000 - ABC_POLLER_INTERVAL) < TCB0.CNT) {
+					ABCpollerTimerRight = (TCB0.CNT + ABC_POLLER_INTERVAL) - 0xD000;
+					} else {
+					ABCpollerTimerRight = TCB0.CNT + ABC_POLLER_INTERVAL;
+				}
+			
+			}
+			railcomCutoutFlag = 0;
+			railcomPollerFlag = 0;
+			} else {
+			// Start Right Count
+			if (oldInputPortStat & 0x01) {
+				oldInputPortStat &= ~0x01;
+				dccTimerRightStart = TCB0.CNT;
+				ABCpollerExecFlag &= ~0x01;
+			}
+		
+		}
+	
+	}
+	
+	/*
+	if (chkFlag & 0x03) {
+		
+		if (oldPortStatFlag & PIN4_bm) {	// RAIL-
+		//if (PORTA.IN & PIN4_bm) {		// RAIL-
+			if ((oldInputPortStat & 0x02) == 0) {
+				oldInputPortStat |= 0x02;
+			
+				if (dccTimerLeftStart < TCB0.CNT) {
+					dccTimerCounterLeft = TCB0.CNT - dccTimerLeftStart;
+					} else {
+					dccTimerCounterLeft = 0xD000 - dccTimerLeftStart + TCB0.CNT;
+				}
+						
+				ABCpollerExecFlag |= 0x02;
+				if ((0xD000 - ABC_POLLER_INTERVAL) < TCB0.CNT) {
+					ABCpollerTimerLeft = (TCB0.CNT + ABC_POLLER_INTERVAL) - 0xD000;
+					} else {
+					ABCpollerTimerLeft = TCB0.CNT + ABC_POLLER_INTERVAL;
+				}
+			
+			}
+			railcomCutoutFlag = 0;
+			railcomPollerFlag = 0;
+			} else {
+			// Start Left Count
+			if (oldInputPortStat & 0x02) {
+				oldInputPortStat &= ~0x02;
+				dccTimerLeftStart = TCB0.CNT;
+				ABCpollerExecFlag &= ~0x02;
+			}
+		
 		}
 		
 	}
-	
-	if (PORTA.IN & PIN4_bm) {		// RAIL-
-		if ((oldInputPortStat & 0x02) == 0) {
-			oldInputPortStat |= 0x02;
-			
-			if (dccTimerLeftStart < TCB0.CNT) {
-				dccTimerCounterLeft = TCB0.CNT - dccTimerLeftStart;
-			} else {
-				dccTimerCounterLeft = 0xD000 - dccTimerLeftStart + TCB0.CNT;
+	*/
+	if (chkFlag & 0x03) {
+		if (oldPortStatFlag & PIN4_bm) {	// RAIL-
+			if ((oldInputPortStat & 0x02) == 0) {
+				oldInputPortStat |= 0x02;
+				
+				ABCpollerExecFlag |= 0x02;
+				if ((0xD000 - ABC_POLLER_INTERVAL) < TCB0.CNT) {
+					ABCpollerTimerLeft = (TCB0.CNT + ABC_POLLER_INTERVAL) - 0xD000;
+				} else {
+					ABCpollerTimerLeft = TCB0.CNT + ABC_POLLER_INTERVAL;
+				}
+				
 			}
-			
-			//if (analogCheckCounterLeft > ANALOG_COUNTER_DECREASE_VALUE) analogCheckCounterLeft -= ANALOG_COUNTER_DECREASE_VALUE;
-			//else analogCheckCounterLeft = 0;
-			
-			ABCpollerExecFlag |= 0x02;
-			if ((0xD000 - ABC_POLLER_INTERVAL) < TCB0.CNT) {
-				ABCpollerTimerLeft = (TCB0.CNT + ABC_POLLER_INTERVAL) - 0xD000;
-			} else {
-				ABCpollerTimerLeft = TCB0.CNT + ABC_POLLER_INTERVAL;
+			railcomCutoutFlag = 0;
+			railcomPollerFlag = 0;
+		} else {
+			if (oldInputPortStat & 0x02) {
+				oldInputPortStat &= ~0x02;
+				ABCpollerExecFlag &= ~0x02;
 			}
-			
 		}
-		railcomCutoutFlag = 0;
-		railcomPollerFlag = 0;
-	} else {
-		// Start Left Count
-		if (oldInputPortStat & 0x02) {
-			oldInputPortStat &= ~0x02;
-			dccTimerLeftStart = TCB0.CNT;
-			ABCpollerExecFlag &= ~0x02;
-		}
-		
 	}
 	
 }
@@ -188,8 +247,6 @@ uint8_t ABCpollerReaderFlag(void) {
 
 
 void DCCpollerClkReceiver(void) {
-	//if (analogCheckCounterRight < ANALOG_COUNTER_MAX) analogCheckCounterRight++;
-	//if (analogCheckCounterLeft < ANALOG_COUNTER_MAX) analogCheckCounterLeft++;
 	if (dccTimeoutCounter < DCCTIMEOUT_COUNTER_MAX) dccTimeoutCounter++;
 }
 
@@ -241,6 +298,11 @@ void dccPacketShifter(uint8_t* recvPacketLength, uint8_t* recvPacket)
 	
 	uint16_t railcomPollerCalc;
 	
+	//if (portChecker()) {
+	//	portReader();
+	//}
+	//portReader(portChecker());
+	
 	if (CV29 & 0x08) {
 		
 		if (railcomCutoutFlag) {
@@ -248,46 +310,49 @@ void dccPacketShifter(uint8_t* recvPacketLength, uint8_t* recvPacket)
 				railcomCutoutFlag = 0;
 				railcomPollerFlag = 0;
 				railcomPollerCounter = 0;
-				return;
+			} else {
+			
+				if (railcomCutoutCounter < TCB0.CNT) {
+					newCounter = TCB0.CNT - railcomCutoutCounter;
+				} else {
+					newCounter = 0xD000 + TCB0.CNT - railcomCutoutCounter;
+				}
+		
+				//if (newCounter >= DCC_PULSE_LENGTH_RAILCOM_CHANNEL1_START) {
+				if (railcomCutoutFlag == 1) {
+					if (newCounter >= railcomCutoutChannel1Timming) {
+						railcomSendFlag |= 0x01;	// Channel1
+						railcomCutoutFlag = 2;
+					}
+				} else if (railcomCutoutFlag == 2) {
+				
+				}
+			
 			}
 			
-			if (railcomCutoutCounter < TCB0.CNT) {
-				newCounter = TCB0.CNT - railcomCutoutCounter;
-			} else {
-				newCounter = 0xD000 + TCB0.CNT - railcomCutoutCounter;
-			}
-		
-			//if (newCounter >= DCC_PULSE_LENGTH_RAILCOM_CHANNEL1_START) {
-			if (railcomCutoutFlag == 1) {
-				if (newCounter >= railcomCutoutChannel1Timming) {
-					railcomSendFlag |= 0x01;	// Channel1
-					railcomCutoutFlag = 2;
-				}
-			} else if (railcomCutoutFlag == 2) {
-				
-			}
 		} else if (railcomPollerFlag) {
 			if ((PORTA.IN & PIN2_bm) || (PORTA.IN & PIN4_bm)) {
 				railcomCutoutFlag = 0;
 				railcomPollerFlag = 0;
 				railcomPollerCounter = 0;
-				return;
-			}
-			
-			if (railcomPollerCounter < TCB0.CNT) {
-				railcomPollerCalc = TCB0.CNT - railcomPollerCounter;
 			} else {
-				railcomPollerCalc = 0xD000 - railcomPollerCounter + TCB0.CNT;
-			}
-		
-			if (railcomPollerCalc > DCC_PULSE_LENGTH_RAILCOM_CUTOUT_MIN) {
-				if (railcomCutoutFlag == 0) {
-					railcomCutoutFlag = 1;
-					railcomCutoutCounter = TCB0.CNT;
-					railcomCutoutChannel1Timming = DCC_PULSE_LENGTH_RAILCOM_CHANNEL1_POLLER_START;
+			
+				if (railcomPollerCounter < TCB0.CNT) {
+					railcomPollerCalc = TCB0.CNT - railcomPollerCounter;
+				} else {
+					railcomPollerCalc = 0xD000 - railcomPollerCounter + TCB0.CNT;
 				}
-				railcomPollerFlag = 0;
-				return;
+		
+				if (railcomPollerCalc > DCC_PULSE_LENGTH_RAILCOM_CUTOUT_MIN) {
+					if (railcomCutoutFlag == 0) {
+						railcomCutoutFlag = 1;
+						railcomCutoutCounter = TCB0.CNT;
+						railcomCutoutChannel1Timming = DCC_PULSE_LENGTH_RAILCOM_CHANNEL1_POLLER_START;
+					}
+					railcomPollerFlag = 0;
+					return;
+				}
+			
 			}
 		} else if ((~PORTA.IN & PIN2_bm) && (~PORTA.IN & PIN4_bm)) {
 			if (railcomPollerFlag == 0) {
@@ -295,17 +360,18 @@ void dccPacketShifter(uint8_t* recvPacketLength, uint8_t* recvPacket)
 				railcomPollerFlag = 1;
 			}
 		}
+		
 	}
 	
 		
 	if ((dccTimerCounter == 0) && (dccTimerCounterLeft == 0)) return;
-	dccTimerTemp = dccTimerCounterLeft;
-	dccTimerTemp2 = dccTimerCounter;
+	dccTimerTemp = dccTimerCounter;
+	dccTimerTemp2 = dccTimerCounterLeft;
 	dccTimerCounter = 0;
 	dccTimerCounterLeft = 0;
 	
 	//PORTA.OUTTGL = PIN3_bm;
-	
+	/*
 	if (CV29 & 0x08) {
 		if (checkRailcomCutout(dccTimerTemp, dccTimerTemp2)) {
 			if (railcomCutoutFlag == 0) {
@@ -317,6 +383,7 @@ void dccPacketShifter(uint8_t* recvPacketLength, uint8_t* recvPacket)
 			return;
 		}
 	}
+	*/
 	
 	
 	
