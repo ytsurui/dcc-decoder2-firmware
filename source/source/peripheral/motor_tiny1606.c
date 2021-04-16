@@ -292,6 +292,7 @@ uint8_t get_speed_8bit(void)
 
 void captureBEMF(void)
 {
+	if (~CV60 & 0x80) return;
 	if (bemfReadFlag == 0) bemfReadFlag = 1;
 }
 
