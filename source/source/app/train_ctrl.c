@@ -42,11 +42,17 @@ uint8_t ABCdirectionReverseFlag = 0;
 uint16_t ABCautoReverseCount1 = 0;
 uint8_t ABCautoReverseCount2 = 0;
 
+uint8_t spdCache2;
+
+uint8_t getSpdCache2(void) {
+	return (spdCache2);
+}
 
 //void setspeed(uint8_t direction, uint8_t speed, uint8_t *acceleRate, uint8_t *deacceleRate)
 void setspeed(uint8_t direction, uint8_t speed)
 {
 	//static uint8_t old_direction = 0xFF;
+	spdCache2 = speed;
 	
 	//if (getYardModeStat()) speed = speed >> 1;	
 	if (getYardModeStat()) {

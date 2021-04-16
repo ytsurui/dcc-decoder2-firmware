@@ -13,6 +13,8 @@
 
 #include "../peripheral/motor.h"
 
+#include "../app/train_ctrl.h"
+
 
 uint8_t railcomSendMode = 0;
 
@@ -108,7 +110,7 @@ void channel1Send(uint8_t ID, uint8_t data)
 
 void railcomChannel1AddrSend() {
 	uint16_t bemfReadTemp;
-	
+		
 	if (CV244 == 0x01) {
 		bemfReadTemp = getBEMFvalue() >> 1;
 		if (railcomSendMode == 0) {
@@ -126,6 +128,15 @@ void railcomChannel1AddrSend() {
 			railcomSendMode = 1;
 		} else {
 			channel1Send(0x02, (uint8_t)(bemfReadTemp & 0x00FF));
+			railcomSendMode = 0;
+		}
+		return;
+	} else if (CV244 == 0x03) {
+		if (railcomSendMode == 0) {
+			channel1Send(0x01, 0x00);
+			railcomSendMode = 1;
+		} else {
+			channel1Send(0x02, getSpdCache2());
 			railcomSendMode = 0;
 		}
 		return;
