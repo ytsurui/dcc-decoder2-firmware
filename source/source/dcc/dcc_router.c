@@ -94,6 +94,7 @@ void dccNormalOperation(uint8_t packetLength, uint8_t packetData[])
 		if ((packetData[0] == 0) && (packetData[1] == 0) && (packetData[2] == 0)) {
 			// Reset
 			serviceModeFlag = 30;
+			resetPageFlag();
 			return;
 		} else if ((packetData[0] == 0xFF) && (packetData[1] == 0x00) && (packetData[2] == 0xFF)) {
 			// Idle, Exit Service-Mode
