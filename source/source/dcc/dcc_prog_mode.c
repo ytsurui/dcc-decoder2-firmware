@@ -30,6 +30,10 @@ void basicACK() {
 	pwmProgMode(PWM_PROG_MODE_ON);
 }
 
+void resetPageFlag(void) {
+	service_page_reg_flag = 0;
+}
+
 void dccProgPageMode(uint8_t packetLength, uint8_t packetData[])
 {
 	uint16_t cvAddr;

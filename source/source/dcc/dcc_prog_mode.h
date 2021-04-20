@@ -5,6 +5,8 @@
  *  Author: Y.Tsurui
  */ 
 
+void resetPageFlag(void);
+
 void dccProgPageMode(uint8_t packetLength, uint8_t packetData[]);
 void dccProgDirectMode(uint8_t packetLength, uint8_t packetData[]);
 void dccProgModeClockReceiver();
