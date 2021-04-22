@@ -44,6 +44,9 @@ uint8_t ABCautoReverseCount2 = 0;
 
 uint8_t spdCache2;
 
+uint8_t motorStartDelayCount = 0;	// Motor Start Delay Counter (CV140)
+uint8_t motorStartDelaySpd = 0;		// Motor Start Delay New SPD
+
 uint8_t getSpdCache2(void) {
 	return (spdCache2);
 }
@@ -64,15 +67,31 @@ void setspeed(uint8_t direction, uint8_t speed)
 		nowDirection = direction;
 		pwm_cutout_timer = 255;
 	}
-
-	target_spd = speed;
-
+	
 	if (speed == 1) {
 		//Emergency Stop
 		now_spd = 0;
 		target_spd = 0;
 		pwmSetSpeed(0);
+		return;
 	}
+
+	if ((target_spd == 0) && (CV140 != 0)) {
+		// Motor Start Delay Mode
+		if (speed != 0) {
+			if (motorStartDelayCount == 0) {
+				motorStartDelayCount = CV140;
+				clock_recv_counter = 0;
+			}
+			motorStartDelaySpd = speed;
+			return;
+		} else {
+			motorStartDelaySpd = 0;
+		}
+	}
+
+	target_spd = speed;
+
 
 	if ((speed < CV1_6[1]) && (speed != 0)) {
 		speed = CV1_6[1];
@@ -226,11 +245,25 @@ void clock_receiver_train_ctrl(void)
 
 		return;	
 	}
+
+	if (motorStartDelayCount) {
+		clock_recv_counter++;
+		if (clock_recv_counter >= 100) {
+			clock_recv_counter = 0;
+			motorStartDelayCount--;
+
+			if (motorStartDelayCount == 0) {
+				target_spd = motorStartDelaySpd;
+				now_spd = 0;
+			}
+		}
+		return;
+	}
 	
 
 	clock_recv_counter++;
 
-	if (clock_recv_counter == 16) {
+	if (clock_recv_counter >= 16) {
 		clock_recv_counter = 0;
 		Rate_counter++;
 		
@@ -254,7 +287,7 @@ void clock_receiver_train_ctrl(void)
 		} else {
 		
 			if (getABCstatus() != nowDirection) {
-				// ABC Status Disable
+				// ABC Status Disable (ABC Acceleration / Normal Operation)
 				if (ABCworkedFlag & 0x01) {
 					// ABC worked Acceleration
 					if (CV53 == 0) {

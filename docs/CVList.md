@@ -312,5 +312,11 @@
     <td>100</td>
     <td>BEMF PID Feedback ADC Scaler MAX Value</td>
   </tr>
+  <tr>
+    <td>140</td>
+    <td>0</td>
+    <td>速度ゼロから動き出す際の通電開始までの起動時間
+    <br>(1/10秒で指定、0.1秒から25.5秒まで / 値=0で無効)</td>
+  </tr>
 
 </table>

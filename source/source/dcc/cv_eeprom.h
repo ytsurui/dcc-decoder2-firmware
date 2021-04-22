@@ -150,7 +150,7 @@ uint8_t __attribute__((section(".eeprom"))) val[] =
 	/* 137 */	0x00,
 	/* 138 */	CV138_DEFAULT,	// BEMF PID Feedback ADC Scaler Max Value
 	/* 139 */	0x00,
-	/* 140 */	0x00,
+	/* 140 */	CV140_DEFAULT,	// Motor Start Delay Time (1/10sec)
 	/* 141 */	0x00,
 	/* 142 */	0x00,
 	/* 143 */	0x00,

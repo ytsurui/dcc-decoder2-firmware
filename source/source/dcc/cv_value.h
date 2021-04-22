@@ -98,6 +98,8 @@
 #define CV121_DEFAULT	0b11110001		// Func8 Forward Type (Headlight)
 #define CV122_DEFAULT	0b11110010		// Func8 Backward Type (Taillight)
 
+#define CV140_DEFAULT   0               // Motor Start Delay Time (1/10sec, 0=Disable)
+
 #define CV244_DEFAULT   0x00            // Railcom Debug-Output (0: Normal / 1: BEMF ADC)
 
 
@@ -157,6 +159,8 @@ uint8_t CV67_94[28];	// Speed Table
 
 uint8_t CV131;				// Yard Mode Max Speed
 uint8_t CV112_CV122[11];
+
+uint8_t CV140;      // Motor Start Delay Time (1/10sec)
 
 uint8_t CV244;      // Railcom Debug-Output (0: Normal / 1: BEMF ADC)
 

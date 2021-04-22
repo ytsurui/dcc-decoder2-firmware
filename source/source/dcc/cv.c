@@ -119,6 +119,7 @@ void initialize_cv(void)
 	write_eeprom(122, CV122_DEFAULT);
 	write_eeprom(131, CV131_DEFAULT);
 	write_eeprom(138, CV138_DEFAULT);
+	write_eeprom(140, CV140_DEFAULT);
 	write_eeprom(244, CV244_DEFAULT);
 	
 	initialize_speed_table();
@@ -254,6 +255,8 @@ void load_cv(void)
 	CV63 = read_cv_raw(63);		// Slow Speed Mode for yard Operation
 	setFuncTable(CV63 & 0x1F);
 	CV64 = read_cv_raw(64);		// Force Railcom Enabled (CV29 bit3 overwrite)
+
+	CV140 = read_cv_raw(140);	// Motor Start Delay Time (1/10sec)
 
 	CV244 = read_cv_raw(244);
 	
@@ -472,6 +475,9 @@ void write_cv_byte(uint16_t CVnum, uint8_t data)
 			break;
 		case 138:
 			CV138 = data;
+			break;
+		case 140:
+			CV140 = data;
 			break;
 		case 244:
 			CV244 = data;
