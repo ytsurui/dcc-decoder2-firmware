@@ -2,9 +2,11 @@
  * func_ctrl.h
  *
  * Created: 2020/10/02 22:07:48
- *  Author: ytsurui
+ *  Author: Y.Tsurui
  */ 
 
+void HSclockReceiverFuncCtrl(void);
+void clockReceiverFuncCtrlSub(uint8_t i);
 void clockReceiverFuncCtrl(void);
 void funcCtrlAnalog(uint8_t direction);
 void funcCtrl1(uint8_t funcGroup, uint8_t funcData, uint8_t direction);

@@ -294,7 +294,7 @@ void dccPacketShifter(uint8_t* recvPacketLength, uint8_t* recvPacket)
 	uint16_t newCounter;
 	
 	uint16_t dccTimerTemp;
-	uint16_t dccTimerTemp2;
+	//uint16_t dccTimerTemp2;
 	
 	uint16_t railcomPollerCalc;
 	
@@ -366,7 +366,7 @@ void dccPacketShifter(uint8_t* recvPacketLength, uint8_t* recvPacket)
 		
 	if ((dccTimerCounter == 0) && (dccTimerCounterLeft == 0)) return;
 	dccTimerTemp = dccTimerCounter;
-	dccTimerTemp2 = dccTimerCounterLeft;
+	//dccTimerTemp2 = dccTimerCounterLeft;
 	dccTimerCounter = 0;
 	dccTimerCounterLeft = 0;
 	
@@ -450,6 +450,8 @@ void dccPacketShifter(uint8_t* recvPacketLength, uint8_t* recvPacket)
 	
 	_dccPulseBitCount++;
 	if (_dccPulseBitCount == 9) {
+		dccTimeoutCounter = 0;
+		
 		// Byte End (1-8: Packet Pulse / 9 = end)
 		if ((_dccPacketCount == 0) && (_dccPacketData[0] == 0xFF)) {
 			// Preamble
@@ -463,7 +465,6 @@ void dccPacketShifter(uint8_t* recvPacketLength, uint8_t* recvPacket)
 		_dccPacketData[_dccPacketCount] = 0;
 		_dccPulseBitCount = 0;
 		
-		dccTimeoutCounter = 0;
 	}
 	
 	
