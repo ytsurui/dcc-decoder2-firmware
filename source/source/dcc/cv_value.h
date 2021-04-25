@@ -94,7 +94,7 @@
 #define CV117_DEFAULT	0b11110001		// Func4 Type (Headlight)
 #define CV118_DEFAULT	0b11110011		// Func5 Type (Taillight left)
 #define CV119_DEFAULT	0b11110010		// Func6 Type (Taillight right)
-#define CV120_DEFAULT	0b11110000		// Func7 Type (Roomlight/Normal)
+#define CV120_DEFAULT	0b11110100		// Func7 Type (Roomlight/Roomlight Type1)
 #define CV121_DEFAULT	0b11110001		// Func8 Forward Type (Headlight)
 #define CV122_DEFAULT	0b11110010		// Func8 Backward Type (Taillight)
 
@@ -196,6 +196,8 @@ uint8_t funcTable5;
  *		0001:	Headlight
  *		0010:	Taillight right
  *		0011:	Taillight left
+ *      0100:   Roomlight Type1
+ *      0101:	Roomlight Type2
  *
  *	Higher-bit (bit7-bit4)
  *		Function illuminate Value (0x0-0xF)
