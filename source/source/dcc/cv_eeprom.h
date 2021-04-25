@@ -2,7 +2,7 @@
  * cv_eeprom.h
  *
  * Created: 2021/02/06 21:53:52
- *  Author: ytsurui
+ *  Author: Y.Tsurui
  */ 
 
 

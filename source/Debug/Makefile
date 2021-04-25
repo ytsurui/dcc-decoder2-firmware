@@ -42,6 +42,7 @@ SUBDIRS :=  \
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS +=  \
 ../source/app/func_ctrl.c \
+../source/app/func_effect.c \
 ../source/app/train_ctrl.c \
 ../source/dcc/cv.c \
 ../source/dcc/dcc_prog_mode.c \
@@ -66,6 +67,7 @@ ASM_SRCS +=
 
 OBJS +=  \
 source/app/func_ctrl.o \
+source/app/func_effect.o \
 source/app/train_ctrl.o \
 source/dcc/cv.o \
 source/dcc/dcc_prog_mode.o \
@@ -83,6 +85,7 @@ source/peripheral/usart0_tiny1606.o
 
 OBJS_AS_ARGS +=  \
 source/app/func_ctrl.o \
+source/app/func_effect.o \
 source/app/train_ctrl.o \
 source/dcc/cv.o \
 source/dcc/dcc_prog_mode.o \
@@ -100,6 +103,7 @@ source/peripheral/usart0_tiny1606.o
 
 C_DEPS +=  \
 source/app/func_ctrl.d \
+source/app/func_effect.d \
 source/app/train_ctrl.d \
 source/dcc/cv.d \
 source/dcc/dcc_prog_mode.d \
@@ -117,6 +121,7 @@ source/peripheral/usart0_tiny1606.d
 
 C_DEPS_AS_ARGS +=  \
 source/app/func_ctrl.d \
+source/app/func_effect.d \
 source/app/train_ctrl.d \
 source/dcc/cv.d \
 source/dcc/dcc_prog_mode.d \
@@ -147,6 +152,13 @@ LINKER_SCRIPT_DEP+=
 
 # AVR32/GNU C Compiler
 source/app/func_ctrl.o: ../source/app/func_ctrl.c
+	@echo Building file: $<
+	@echo Invoking: AVR/GNU C Compiler : 5.4.0
+	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DF_CPU=10000000UL -DDEBUG  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\Atmel\ATtiny_DFP\1.8.332\include"  -O1 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=attiny1606 -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\Atmel\ATtiny_DFP\1.8.332\gcc\dev\attiny1606" -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
+	@echo Finished building: $<
+	
+
+source/app/func_effect.o: ../source/app/func_effect.c
 	@echo Building file: $<
 	@echo Invoking: AVR/GNU C Compiler : 5.4.0
 	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DF_CPU=10000000UL -DDEBUG  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\Atmel\ATtiny_DFP\1.8.332\include"  -O1 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=attiny1606 -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\Atmel\ATtiny_DFP\1.8.332\gcc\dev\attiny1606" -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 

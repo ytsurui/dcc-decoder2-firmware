@@ -2,7 +2,7 @@
  * railcom.c
  *
  * Created: 2021/01/25 9:41:22
- *  Author: ytsurui_sekisui
+ *  Author: Y.Tsurui
  */ 
 
 #include <avr/io.h>

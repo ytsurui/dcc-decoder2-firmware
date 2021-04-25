@@ -2,7 +2,7 @@
  * railcom.h
  *
  * Created: 2021/01/25 9:41:35
- *  Author: ytsurui_sekisui
+ *  Author: Y.Tsurui
  */ 
 
 
