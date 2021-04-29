@@ -223,6 +223,12 @@ void funcCtrlAnalog(uint8_t direction) {
 		mask = mask << 1;
 	}
 	
+	funcSetDirection = direction;
+	if ((CV50 & 0x80) && (CV33_43[10] == 0x01)) {
+		newFuncPortStat |= 0x80;
+	}
+	
+	
 	/*
 	if (CV33_43[10] == 0x01) {
 		funcPortStat = 0x0180 + newFuncPortStat;
