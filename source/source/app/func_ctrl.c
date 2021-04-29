@@ -69,6 +69,7 @@ void HSclockReceiverFuncCtrl(void) {
 	}
 	
 	if (HSfuncValue[7] != 0) {
+		/*
 		if (readDirectionReverse()) {
 			if (funcSetDirection == 1) {
 				direction = 2;
@@ -80,6 +81,14 @@ void HSclockReceiverFuncCtrl(void) {
 		} else {
 			direction = funcSetDirection;
 		}
+		*/
+		
+		if (funcVirtualStat & 0x04) {
+			direction = 1;
+		} else {
+			direction = funcSetDirection;
+		}
+		
 		if (HSfuncValue[i] > HSclkCounter) {
 			//funcPortCtrlBridge(i, 1, direction);
 			motorFuncDriver(1, direction);
@@ -385,6 +394,7 @@ void funcSetPort2(uint8_t funcPort, uint8_t count)
 	uint8_t funcStat;
 	
 	if (funcPort == 7) {
+		/*
 		if (readDirectionReverse()) {
 			if (funcSetDirection == 1) {
 				direction = 2;
@@ -396,6 +406,8 @@ void funcSetPort2(uint8_t funcPort, uint8_t count)
 		} else {
 			direction = funcSetDirection;
 		}
+		*/
+		direction = funcSetDirection;
 		
 		if (direction == 2) {
 			cvType = CV112_CV122[10];
