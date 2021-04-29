@@ -58,7 +58,7 @@
 //#define CV47_DEFAULT	0xCF	//PWM KickStart Configuration (Bit0-5: Timing, Bit6: Freq (0: 120Hz / 1: 60Hz), Bit7: Enable
 #define CV47_DEFAULT	0x4F	//PWM KickStart Configuration (Bit0-5: Timing, Bit6: Freq (0: 120Hz / 1: 60Hz), Bit7: Enable
 
-#define CV51_DEFAULT	5		// Automatic Brake Ignore Function (Default: F5)
+#define CV51_DEFAULT	255		// Automatic Brake Ignore Function (Default: Disable)
 #define CV52_DEFAULT	0		// Automatic Brake Auto-Reverse (0: Disabled / 1-255: Stop seconds)
 #define CV53_DEFAULT	10		// Automatic Brake Acceleration Rate
 #define CV54_DEFAULT	3		// Automatic Brake Deacceleration Rate
@@ -198,6 +198,7 @@ uint8_t funcTable5;
  *		0011:	Taillight left
  *      0100:   Roomlight Type1
  *      0101:	Roomlight Type2
+ *		0110:	Roomlight Type3
  *
  *	Higher-bit (bit7-bit4)
  *		Function illuminate Value (0x0-0xF)
