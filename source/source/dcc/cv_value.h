@@ -52,7 +52,7 @@
 #define CV42_DEFAULT	0b00000000		// F0 (Func8, MotorDriver)
 #define CV43_DEFAULT	0b00000000		// MotorDriver Function Enable (0: Disabled / 1: Enabled)
 #define CV44_DEFAULT	0b00111110		// Headlight On Backward (Disabled)
-#define CV45_DEFAULT	0b00000110		// Headlight On Forward (Disabled)
+#define CV45_DEFAULT	0b00111110		// Headlight On Forward (Disabled)
 #define CV50_DEFAULT	0b11001001		// Analog Function Enable Flag (bit7-0: Func8-Func1 Enable)
 
 //#define CV47_DEFAULT	0xCF	//PWM KickStart Configuration (Bit0-5: Timing, Bit6: Freq (0: 120Hz / 1: 60Hz), Bit7: Enable
