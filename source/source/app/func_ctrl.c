@@ -428,7 +428,7 @@ void funcSetPort2(uint8_t funcPort, uint8_t count)
 	}
 	
 	funcStat = funcPortStat & (1 << funcPort);
-	if (funcStat == 0) return;
+	//if (funcStat == 0) return;
 	
 	
 	if ((cvType & 0x0F) == 0x01) {
