@@ -195,17 +195,17 @@
   </tr>
   <tr>
     <td>55</td>
-    <td></td>
+    <td>30</td>
     <td>BEMFパラメーター (Kp)</td>
   </tr>
   <tr>
     <td>56</td>
-    <td>4</td>
+    <td>10</td>
     <td>BEMFパラメーター (Ki)</td>
   </tr>
   <tr>
     <td>57</td>
-    <td></td>
+    <td>40</td>
     <td>BEMFパラメーター (Kd)</td>
   </tr>
   <tr>
