@@ -1,3 +1,57 @@
+# ファンクションの初期値
+
+<table>
+  <tr>
+    <th>基板上の番号</th>
+    <th>ファンクション番号</th>
+    <th>動作する走行方向</th>
+    <th>ファンクション種別</th>
+  </tr>
+  <tr>
+    <td>F1 (Func1)</td>
+    <td>F0</td>
+    <td>前進</td>
+    <td>ヘッドライト</td>
+  </tr>
+  <tr>
+    <td>F2 (Func2)</td>
+    <td>F1</td>
+    <td>後進</td>
+    <td>テールライト左</td>
+  </tr>
+  <tr>
+    <td>F3 (Func3)</td>
+    <td>F1</td>
+    <td>後進</td>
+    <td>テールライト右</td>
+  </tr>
+  <tr>
+    <td>F4 (Func4)</td>
+    <td>F0</td>
+    <td>後進</td>
+    <td>ヘッドライト</td>
+  </tr>
+  <tr>
+    <td>F5 (Func5)</td>
+    <td>F1</td>
+    <td>前進</td>
+    <td>テールライト左</td>
+  </tr>
+  <tr>
+    <td>F6 (Func6)</td>
+    <td>F1</td>
+    <td>前進</td>
+    <td>テールライト右</td>
+  </tr>
+  <tr>
+    <td>F7 (Func7)</td>
+    <td>F3</td>
+    <td>-</td>
+    <td>室内灯 (蛍光灯)</td>
+  </tr>
+</table>
+
+
 # ファンクションの設定方法
 
 ファンクションに関係するCV値は、Function1からFunction7までの出力ごとにCV番号が2つずつ割り当てられており、それぞれアドレスとディレクションの制御、LED照度とファンクション種別の制御のために割り当てています。
