@@ -133,7 +133,8 @@ uint8_t funcEffect(uint8_t stat, uint8_t cvType, uint8_t counter, uint16_t *effe
 	//iValue = (cvType & 0xF0) >> 4;
 	*effectCounter = 0;
 	*ctrlOverride = 0;
-	return (iValue);
+	//return (iValue);
+	return ((iValue << 4) | 0x0F);
 	
 	
 	

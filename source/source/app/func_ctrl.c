@@ -46,42 +46,81 @@ uint16_t funcStatusCount[9];
 uint8_t HSfuncValue[9];
 uint8_t HSclkCounter;
 
+uint8_t HSfuncStageFlag = 0;
+
 uint8_t funcCount = 0;
 uint8_t funcCount2 = 0;
 #define FUNC_COUNT_MAX	0x0F
 
 void HSclockReceiverFuncCtrl(void) {
-	uint8_t i;
+	//uint8_t i;
 	uint8_t direction;
+	uint8_t HSclkCounterFiltered, funcValueDivided;
 	
 	if (HSclkFuncUseFlag == 0) return;
 	
+	if (HSfuncStageFlag < 7) {
+		if (HSfuncValue[HSfuncStageFlag] != 0) {
+			HSclkCounterFiltered = HSclkCounter & 0x0F;
+			funcValueDivided = HSfuncValue[HSfuncStageFlag] >> 4;
+			
+			if (funcValueDivided > HSclkCounterFiltered) {
+				funcPortCtrl(HSfuncStageFlag, 1);
+			} else {
+				funcPortCtrl(HSfuncStageFlag, 0);
+			}
+		}
+	} else if (HSfuncStageFlag == 7) {
+		if (HSfuncValue[7] != 0) {
+			HSclkCounterFiltered = HSclkCounter & 0x0F;
+			funcValueDivided = HSfuncValue[7] >> 4;
+			
+			if (funcVirtualStat & 0x04) {
+				direction = 1;
+			} else {
+				direction = funcSetDirection;
+			}
+			
+			if (funcValueDivided > HSclkCounterFiltered) {
+				motorFuncDriver(1, direction);
+			} else {
+				motorFuncDriver(0, direction);
+			}
+		}
+	}
+	
+	HSfuncStageFlag++;
+	if (HSfuncStageFlag == 8) {
+		HSclkCounter++;
+		HSfuncStageFlag = 0;
+	}
+	
+	/*
 	HSclkCounter++;
 	for (i = 0; i < 7; i++) {
 		if (HSfuncValue[i] == 0) continue;
-		if (HSfuncValue[i] > HSclkCounter) {
-			//funcPortCtrlBridge(i, 1, direction);
-			funcPortCtrl(i, 1);
+		
+		if (HSfuncHighSpeedFlag & (1 << i)) {
+			HSclkCounterFiltered = HSclkCounter & 0x1F;
+			funcValueDivided = HSfuncValue[i] >> 3;
+			
+			if (funcValueDivided > HSclkCounterFiltered) {
+				funcPortCtrl(i, 1);
+			} else {
+				funcPortCtrl(i, 0);
+			}
 		} else {
-			//funcPortCtrlBridge(i, 0, direction);
-			funcPortCtrl(i, 0);
+			if (HSfuncValue[i] > HSclkCounter) {
+				//funcPortCtrlBridge(i, 1, direction);
+				funcPortCtrl(i, 1);
+			} else {
+				//funcPortCtrlBridge(i, 0, direction);
+				funcPortCtrl(i, 0);
+			}
 		}
 	}
 	
 	if (HSfuncValue[7] != 0) {
-		/*
-		if (readDirectionReverse()) {
-			if (funcSetDirection == 1) {
-				direction = 2;
-			} else {
-				direction = 1;
-			}
-		} else if (funcVirtualStat & 0x04) {
-			direction = 1;
-		} else {
-			direction = funcSetDirection;
-		}
-		*/
 		
 		if (funcVirtualStat & 0x04) {
 			direction = 1;
@@ -89,15 +128,27 @@ void HSclockReceiverFuncCtrl(void) {
 			direction = funcSetDirection;
 		}
 		
-		if (HSfuncValue[i] > HSclkCounter) {
-			//funcPortCtrlBridge(i, 1, direction);
-			motorFuncDriver(1, direction);
+		if (HSfuncHighSpeedFlag & (1 << i)) {
+			HSclkCounterFiltered = HSclkCounter & 0x1F;
+			funcValueDivided = HSfuncValue[i] >> 3;
+			
+			if (funcValueDivided > HSclkCounterFiltered) {
+				motorFuncDriver(1, direction);
+			} else {
+				motorFuncDriver(0, direction);
+			}
 		} else {
-			//funcPortCtrlBridge(i, 0, direction);
-			motorFuncDriver(0, direction);
+			if (HSfuncValue[i] > HSclkCounter) {
+				//funcPortCtrlBridge(i, 1, direction);
+				motorFuncDriver(1, direction);
+			} else {
+				//funcPortCtrlBridge(i, 0, direction);
+				motorFuncDriver(0, direction);
+			}
 		}
 		
 	}
+	*/
 	
 }
 
@@ -166,11 +217,15 @@ void clockReceiverFuncCtrlSub(uint8_t i) {
 			// Override Taillight
 			if ((CV112_CV122[i + 2] & 0x0F) == 0x02) {
 				// Taillight Right, Always Off
+				HSfuncValue[i] = 0;
+				HSclkFuncUseFlag &= ~(1 << i);
 				funcPortCtrl(i, 0);
 			} else if ((CV112_CV122[i + 2] & 0x0F) == 0x03) {
 				// Taillight Left, Always On
 				funcSetPort2(i, funcCount);
 			} else {
+				HSfuncValue[i] = 0;
+				HSclkFuncUseFlag &= ~(1 << i);
 				funcPortCtrl(i, 0);
 			}
 		//	funcSetPort2(i, funcCount);
@@ -178,6 +233,8 @@ void clockReceiverFuncCtrlSub(uint8_t i) {
 			if (i == 7) {
 				motorFuncDriver(0, 0);
 			} else {
+				HSfuncValue[i] = 0;
+				HSclkFuncUseFlag &= ~(1 << i);
 				funcPortCtrl(i, 0);
 			}
 		}
@@ -455,14 +512,20 @@ void funcSetPort2(uint8_t funcPort, uint8_t count)
 		// Taillight Right
 		if (funcVirtualStat & 0x04) {
 			// Headlight Only, always off
+			HSfuncValue[funcPort] = 0;
+			HSclkFuncUseFlag &= ~(1 << funcPort);
 			funcPortCtrlBridge(funcPort, 0, direction);
 			return;
 		} else if (funcVirtualStat & 0x08) {
 			// Headlight Only, always off
+			HSfuncValue[funcPort] = 0;
+			HSclkFuncUseFlag &= ~(1 << funcPort);
 			funcPortCtrlBridge(funcPort, 0, direction);
 			return;	
 		} else if (funcVirtualStat & 0x02) {
 			// Taillight Yard Operation, always off
+			HSfuncValue[funcPort] = 0;
+			HSclkFuncUseFlag &= ~(1 << funcPort);
 			funcPortCtrlBridge(funcPort, 0, direction);
 			return;
 		}
@@ -471,10 +534,14 @@ void funcSetPort2(uint8_t funcPort, uint8_t count)
 		// Taillight left
 		if (funcVirtualStat & 0x04) {
 			// Headlight Only, always off
+			HSfuncValue[funcPort] = 0;
+			HSclkFuncUseFlag &= ~(1 << funcPort);
 			funcPortCtrlBridge(funcPort, 0, direction);
 			return;
 		} else if (funcVirtualStat & 0x08) {
 			// Headlight Only, always off
+			HSfuncValue[funcPort] = 0;
+			HSclkFuncUseFlag &= ~(1 << funcPort);
 			funcPortCtrlBridge(funcPort, 0, direction);
 			return;
 		} else if (funcVirtualStat & 0x03) {
@@ -499,6 +566,7 @@ void funcSetPort2(uint8_t funcPort, uint8_t count)
 		HSfuncValue[funcPort] = illuminateValue;
 		HSclkFuncUseFlag |= (1 << funcPort);
 	} else {
+		/*
 		if (count > illuminateValue) {
 			funcPortCtrlBridge(funcPort, 0, direction);
 		} else {
@@ -506,6 +574,9 @@ void funcSetPort2(uint8_t funcPort, uint8_t count)
 		}
 		
 		HSclkFuncUseFlag &= ~(1 << funcPort);
+		*/
+		HSfuncValue[funcPort] = illuminateValue;
+		HSclkFuncUseFlag |= (1 << funcPort);
 	}
 }
 
