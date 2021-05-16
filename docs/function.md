@@ -8,46 +8,82 @@
     <th>ファンクション種別</th>
   </tr>
   <tr>
-    <td>F1 (Func1)</td>
+    <td>P1 (Func1)</td>
     <td>F0</td>
     <td>前進</td>
     <td>ヘッドライト</td>
   </tr>
   <tr>
-    <td>F2 (Func2)</td>
+    <td>P2 (Func2)</td>
     <td>F1</td>
     <td>後進</td>
     <td>テールライト左</td>
   </tr>
   <tr>
-    <td>F3 (Func3)</td>
+    <td>P3 (Func3)</td>
     <td>F1</td>
     <td>後進</td>
     <td>テールライト右</td>
   </tr>
   <tr>
-    <td>F4 (Func4)</td>
+    <td>P4 (Func4)</td>
     <td>F0</td>
     <td>後進</td>
     <td>ヘッドライト</td>
   </tr>
   <tr>
-    <td>F5 (Func5)</td>
+    <td>P5 (Func5)</td>
     <td>F1</td>
     <td>前進</td>
     <td>テールライト左</td>
   </tr>
   <tr>
-    <td>F6 (Func6)</td>
+    <td>P6 (Func6)</td>
     <td>F1</td>
     <td>前進</td>
     <td>テールライト右</td>
   </tr>
   <tr>
-    <td>F7 (Func7)</td>
+    <td>P7 (Func7)</td>
     <td>F3</td>
     <td>-</td>
     <td>室内灯 (蛍光灯)</td>
+  </tr>
+  <tr>
+    <td>P8 (MotorDriver)</td>
+    <td>F0</td>
+    <td>前進<br>後進</td>
+    <td>ヘッドライト<br>テールライト右</td>
+  </tr>
+  <tr>
+    <td>-</td>
+    <td>F4</td>
+    <td>-</td>
+    <td>ヘッドライト減光</td>
+  </tr>
+  <tr>
+    <td>-</td>
+    <td>F7</td>
+    <td>-</td>
+    <td>入替標識灯</td>
+  </tr>
+  <tr>
+    <td>-</td>
+    <td>無効</td>
+    <td>-</td>
+    <td>ヘッドライト常時点灯</td>
+  </tr>
+  <tr>
+    <td>-</td>
+    <td>無効</td>
+    <td>-</td>
+    <td>自動ブレーキ機能の無効化</td>
+  </tr>
+  <tr>
+    <td>-</td>
+    <td>F7</td>
+    <td>-</td>
+    <td>入れ替え時の速度抑制</td>
   </tr>
 </table>
 
@@ -132,7 +168,7 @@ Function 8については、モータードライバを利用して動作する�
   <tr>
     <th>入れ替え時の速度抑制</th>
     <td>CV63</td>
-    <td>-</td>
+    <td>CV131<br>(速度の上限値)</td>
   </tr>
 </table>
 
