@@ -30,7 +30,8 @@ uint8_t funcEffect(uint8_t stat, uint8_t cvType, uint8_t counter, uint16_t *effe
 				*effectCounter = 0;
 				*HSfuncValue = (iValue2 & 0xF0) + 0x0F;
 				*ctrlOverride = 1;
-				return (iValue);
+				//return (iValue);
+				return ((iValue << 4) | 0x0F);
 			}
 			*HSfuncValue = iValue2;
 			*ctrlOverride = 1;
@@ -53,7 +54,8 @@ uint8_t funcEffect(uint8_t stat, uint8_t cvType, uint8_t counter, uint16_t *effe
 			if (*effectCounter < 60) {
 				*ctrlOverride = 0;
 				*HSfuncValue = 0;
-				return (iValue);
+				//return (iValue);
+				return ((iValue << 4) | 0x0F);
 			}
 			if (*effectCounter < 120) {
 				*ctrlOverride = 1;
@@ -63,7 +65,8 @@ uint8_t funcEffect(uint8_t stat, uint8_t cvType, uint8_t counter, uint16_t *effe
 			if (*effectCounter < 180) {
 				*ctrlOverride = 0;
 				*HSfuncValue = 0;
-				return (iValue);
+				//return (iValue);
+				return ((iValue << 4) | 0x0F);
 			}
 			if (*effectCounter < 400) {
 				*ctrlOverride = 1;
@@ -74,7 +77,8 @@ uint8_t funcEffect(uint8_t stat, uint8_t cvType, uint8_t counter, uint16_t *effe
 			*effectCounter = 0;
 			*ctrlOverride = 0;
 			*HSfuncValue = 0;
-			return (iValue);
+			//return (iValue);
+			return ((iValue << 4) | 0x0F);
 		}
 		
 		
@@ -92,7 +96,8 @@ uint8_t funcEffect(uint8_t stat, uint8_t cvType, uint8_t counter, uint16_t *effe
 				*effectCounter = 0;
 				*ctrlOverride = 0;
 				*HSfuncValue = 0;
-				return (iValue);
+				//return (iValue);
+				return ((iValue << 4) | 0x0F);
 			}
 			
 			iValue2 = 0;
@@ -115,7 +120,8 @@ uint8_t funcEffect(uint8_t stat, uint8_t cvType, uint8_t counter, uint16_t *effe
 				*effectCounter = 0;
 				*HSfuncValue = (iValue2 & 0xF0) + 0x0F;
 				*ctrlOverride = 1;
-				return (iValue);
+				//return (iValue);
+				return ((iValue << 4) | 0x0F);
 			}
 			*HSfuncValue = iValue2;
 			*ctrlOverride = 1;
