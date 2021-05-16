@@ -203,6 +203,9 @@ void portReader(uint8_t chkFlag) {
 		
 	}
 	*/
+	
+	
+	
 	if (chkFlag & 0x03) {
 		if (oldPortStatFlag & PIN4_bm) {	// RAIL-
 			if ((oldInputPortStat & 0x02) == 0) {
@@ -224,8 +227,20 @@ void portReader(uint8_t chkFlag) {
 				ABCpollerExecFlag &= ~0x02;
 			}
 		}
+	
 	}
 	
+
+	if ((~PORTA.IN & PIN2_bm) && (~PORTA.IN & PIN4_bm)) {
+		if (railcomPollerFlag == 0) {
+			railcomPollerCounter = TCB0.CNT;
+			railcomPollerFlag = 1;
+		}
+	} else {
+		railcomCutoutFlag = 0;
+		railcomPollerFlag = 0;
+		railcomPollerCounter = 0;
+	}
 }
 
 
