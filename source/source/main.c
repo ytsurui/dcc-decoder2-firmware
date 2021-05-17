@@ -10,6 +10,7 @@
 #include <avr/interrupt.h>
 
 #include "peripheral/cpuclk.h"
+#include "peripheral/cpu_wdt.h"
 #include "peripheral/rtc.h"
 #include "peripheral/dcc_poller.h"
 #include "peripheral/analog_poller.h"
@@ -65,11 +66,14 @@ int main(void)
 	
 	load_cv();
 	
+	startWDT();
+	
 	sei();
 	
 		
 	while (1) 
     {
+		clearWDT();
 		dccPacketShifter(&dccRecvPacketLength, dccRecvPacketCache);
 		
 		if (dccRecvPacketLength) {

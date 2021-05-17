@@ -207,6 +207,12 @@
     <Compile Include="source\peripheral\cpuclk_avr0.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="source\peripheral\cpu_wdt.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="source\peripheral\cpu_wdt.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="source\peripheral\dcc_poller.h">
       <SubType>compile</SubType>
     </Compile>

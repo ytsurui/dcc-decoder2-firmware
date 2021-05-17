@@ -52,6 +52,7 @@ C_SRCS +=  \
 ../source/peripheral/ABC_detector_tiny1606.c \
 ../source/peripheral/analog_poller_tiny1606.c \
 ../source/peripheral/cpuclk_avr0.c \
+../source/peripheral/cpu_wdt.c \
 ../source/peripheral/dcc_poller_tiny1606.c \
 ../source/peripheral/funcport_tiny1606.c \
 ../source/peripheral/motor_tiny1606.c \
@@ -77,6 +78,7 @@ source/main.o \
 source/peripheral/ABC_detector_tiny1606.o \
 source/peripheral/analog_poller_tiny1606.o \
 source/peripheral/cpuclk_avr0.o \
+source/peripheral/cpu_wdt.o \
 source/peripheral/dcc_poller_tiny1606.o \
 source/peripheral/funcport_tiny1606.o \
 source/peripheral/motor_tiny1606.o \
@@ -95,6 +97,7 @@ source/main.o \
 source/peripheral/ABC_detector_tiny1606.o \
 source/peripheral/analog_poller_tiny1606.o \
 source/peripheral/cpuclk_avr0.o \
+source/peripheral/cpu_wdt.o \
 source/peripheral/dcc_poller_tiny1606.o \
 source/peripheral/funcport_tiny1606.o \
 source/peripheral/motor_tiny1606.o \
@@ -113,6 +116,7 @@ source/main.d \
 source/peripheral/ABC_detector_tiny1606.d \
 source/peripheral/analog_poller_tiny1606.d \
 source/peripheral/cpuclk_avr0.d \
+source/peripheral/cpu_wdt.d \
 source/peripheral/dcc_poller_tiny1606.d \
 source/peripheral/funcport_tiny1606.d \
 source/peripheral/motor_tiny1606.d \
@@ -131,6 +135,7 @@ source/main.d \
 source/peripheral/ABC_detector_tiny1606.d \
 source/peripheral/analog_poller_tiny1606.d \
 source/peripheral/cpuclk_avr0.d \
+source/peripheral/cpu_wdt.d \
 source/peripheral/dcc_poller_tiny1606.d \
 source/peripheral/funcport_tiny1606.d \
 source/peripheral/motor_tiny1606.d \
@@ -222,6 +227,13 @@ source/peripheral/analog_poller_tiny1606.o: ../source/peripheral/analog_poller_t
 	
 
 source/peripheral/cpuclk_avr0.o: ../source/peripheral/cpuclk_avr0.c
+	@echo Building file: $<
+	@echo Invoking: AVR/GNU C Compiler : 5.4.0
+	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DF_CPU=10000000UL -DDEBUG  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\Atmel\ATtiny_DFP\1.8.332\include"  -O1 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=attiny1606 -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\Atmel\ATtiny_DFP\1.8.332\gcc\dev\attiny1606" -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
+	@echo Finished building: $<
+	
+
+source/peripheral/cpu_wdt.o: ../source/peripheral/cpu_wdt.c
 	@echo Building file: $<
 	@echo Invoking: AVR/GNU C Compiler : 5.4.0
 	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DF_CPU=10000000UL -DDEBUG  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\Atmel\ATtiny_DFP\1.8.332\include"  -O1 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=attiny1606 -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\Atmel\ATtiny_DFP\1.8.332\gcc\dev\attiny1606" -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
