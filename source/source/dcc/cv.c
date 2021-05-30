@@ -249,12 +249,18 @@ void load_cv(void)
 	CV58 = read_cv_raw(58);
 	CV59 = read_cv_raw(59);
 	
+	/*
 	CV60 = read_cv_raw(60);
 	CV61 = read_cv_raw(61);
 	CV62 = read_cv_raw(62);
 	CV63 = read_cv_raw(63);		// Slow Speed Mode for yard Operation
-	setFuncTable(CV63 & 0x1F);
+	setFuncTable(CV60_64[3] & 0x1F);
 	CV64 = read_cv_raw(64);		// Force Railcom Enabled (CV29 bit3 overwrite)
+	*/
+	for (i = 0; i < 5; i++) {
+		CV60_64[i] = read_cv_raw(60 + i);
+	}
+	setFuncTable(CV60_64[3] & 0x1F);
 
 	CV140 = read_cv_raw(140);	// Motor Start Delay Time (1/10sec)
 
@@ -318,7 +324,7 @@ void write_cv_byte(uint16_t CVnum, uint8_t data)
 			CV27 = data;
 			break;
 		case 29:
-			if (CV64 & 0x01) {
+			if (CV60_64[4] & 0x01) {
 				data = data | 0x08;	// Force bit3 overwrite (Enable Railcom)
 			}
 			CV29 = data;
@@ -396,6 +402,7 @@ void write_cv_byte(uint16_t CVnum, uint8_t data)
 		case 59:
 			CV59 = data;
 			break;
+/*
 		case 60:
 			CV60 = data;
 			break;
@@ -407,10 +414,21 @@ void write_cv_byte(uint16_t CVnum, uint8_t data)
 			break;
 		case 63:	// F5 Half Speed Mode for yard operation
 			CV63 = data;
-			setFuncTable(CV63 & 0x1F);
+			setFuncTable(CV60_64[3] & 0x1F);
 			break;
 		case 64:
 			CV64 = data;
+			break;
+*/
+		case 60:
+		case 61:
+		case 62:
+		case 64:
+			CV60_64[CVnum2 - 60] = data;
+			break;
+		case 63:
+			CV60_64[3] = data;
+			setFuncTable(CV60_64[3] & 0x1F);
 			break;
 		case 67:
 		case 68:

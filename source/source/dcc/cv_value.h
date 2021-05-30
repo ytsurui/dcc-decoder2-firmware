@@ -144,11 +144,12 @@ uint8_t CV138;		// BEMF PID Feedback ADC Scaler Max Value;
 uint8_t CV58;		// Analog Max Speed
 uint8_t CV59;		// Analog Acceleration Rate
 
-uint8_t CV60;		// Super Slow Configuration (0: Disable / 1: 60Hz / 2: 120Hz / 3: 30Hz)
-uint8_t CV61;		// Super Slow Initialize Duty (0-255)
-uint8_t CV62;		// Super Slow End Speed (0-255)
-uint8_t CV63;		// F5 Half Speed Mode for yard operation
-uint8_t CV64;		// Force Railcom Enabled (CV29 bit3 Overwrite)
+//uint8_t CV60;		// Super Slow Configuration (0: Disable / 1: 60Hz / 2: 120Hz / 3: 30Hz)
+//uint8_t CV61;		// Super Slow Initialize Duty (0-255)
+//uint8_t CV62;		// Super Slow End Speed (0-255)
+//uint8_t CV63;		// F5 Half Speed Mode for yard operation
+//uint8_t CV64;		// Force Railcom Enabled (CV29 bit3 Overwrite)
+uint8_t CV60_64[5];
 
 uint8_t CV67_94[28];	// Speed Table
 
