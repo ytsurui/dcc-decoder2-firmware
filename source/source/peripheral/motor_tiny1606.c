@@ -184,14 +184,14 @@ uint8_t calcSuperSlowDutyValue(void)
 	uint16_t calcTemp;
 	
 	//nowSpdValue = TCA0.SINGLE.CMP0 & 0x00FF;
-	if (nowSPDvalue >= CV62) return (0xFF);
+	if (nowSPDvalue >= CV60_64[2]) return (0xFF);
 	
 	//dutyBaseValue = CV62 - CV61;
 	//calcTemp = nowSPDvalue * dutyBaseValue;
 	//calcTemp = calcTemp / CV62;
 	//calcTemp += CV61;
 	
-	calcTemp = (nowSPDvalue * (0xFF - CV61) / CV62) + CV61;
+	calcTemp = (nowSPDvalue * (0xFF - CV60_64[1]) / CV60_64[2]) + CV60_64[1];
 	
 	
 	return (calcTemp & 0x00FF);
@@ -239,10 +239,10 @@ void HSclockReceiverMotorCtrl(void)
 		return;
 	}
 	
-	if ((CV60 & 0x7F) == 0) {
+	if ((CV60_64[0] & 0x7F) == 0) {
 		// Enable PWM Output
 		//TCA0.SINGLE.CTRLB = TCA_SINGLE_WGMODE_SINGLESLOPE_gc | TCA_SINGLE_CMP0_bm;
-		if (CV60 & 0x80) {
+		if (CV60_64[0] & 0x80) {
 			TCA0.SINGLE.CMP0 = bemfSPDvalue;
 		} else {
 			TCA0.SINGLE.CMP0 = nowSPDvalue;
@@ -250,7 +250,7 @@ void HSclockReceiverMotorCtrl(void)
 		return;
 	}
 	
-	if ((CV60 & 0x7F) == 3) {
+	if ((CV60_64[0] & 0x7F) == 3) {
 		superslowBaseCounter++;
 		if (superslowBaseCounter >= 1) {
 			superslowBaseCounter = 0;
@@ -258,7 +258,7 @@ void HSclockReceiverMotorCtrl(void)
 		} else {
 			return;
 		}
-	} else if (CV60 & 0x02) {
+	} else if (CV60_64[0] & 0x02) {
 		// 120Hz
 		superslowCounter += 2;
 	} else {
@@ -273,7 +273,7 @@ void HSclockReceiverMotorCtrl(void)
 		//PORTB.OUTCLR = PIN0_bm;
 	} else {
 		// Enable PWM Output
-		if (CV60 & 0x80) {
+		if (CV60_64[0] & 0x80) {
 			TCA0.SINGLE.CMP0 = bemfSPDvalue;	
 		} else {
 			TCA0.SINGLE.CMP0 = fixedSPDvalue;
@@ -292,7 +292,7 @@ uint8_t get_speed_8bit(void)
 
 void captureBEMF(void)
 {
-	if (~CV60 & 0x80) return;
+	if (~CV60_64[0] & 0x80) return;
 	if (bemfReadFlag == 0) bemfReadFlag = 1;
 }
 
