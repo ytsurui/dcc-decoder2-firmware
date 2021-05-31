@@ -138,6 +138,7 @@ uint8_t __attribute__((section(".eeprom"))) val[] =
 	/* 125 */	0x00,
 	/* 126 */	0x00,
 	/* 127 */	0x00,
+#ifndef ATTINY806_FUNC
 	/* 128 */	0x00,
 	/* 129 */	0x00,
 	/* 130 */	0x00,
@@ -266,4 +267,5 @@ uint8_t __attribute__((section(".eeprom"))) val[] =
 	/* 253 */	0x00,
 	/* 254 */	0x00,
 	/* 255 */	0x00
+#endif
 };

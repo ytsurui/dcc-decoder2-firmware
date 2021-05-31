@@ -374,7 +374,9 @@ void funcSet(uint8_t funcNum, uint8_t stat, uint8_t direction)
 	funcSetPortMotor(CV33_43[9], funcNum, stat, direction);	// Func8
 	funcSetVirtual(3, CV44, funcNum, stat);					// Headlight Always On Backward
 	funcSetVirtual(2, CV45, funcNum, stat);					// Headlight Always On Forward
+#ifndef ATTINY806_FUNC
 	funcSetVirtual(6, CV51, funcNum, stat);					// Automatic Brake Ignore Function
+#endif
 	funcSetVirtual(7, CV60_64[3], funcNum, stat);			// Slow Speed Mode for Yard Operation (CV63)
 }
 

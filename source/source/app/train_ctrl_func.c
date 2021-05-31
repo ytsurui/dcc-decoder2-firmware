@@ -1,4 +1,13 @@
 /*
+ * train_ctrl_func.c
+ *
+ * Created: 2021/05/31 23:09:25
+ *  Author: ytsurui
+ */ 
+
+#ifdef ATTINY806_FUNC
+
+/*
  * train_ctrl.c
  *
  * Created: 2017/02/04 19:44:18
@@ -7,8 +16,6 @@
  *	Target:	ATtiny45
  *	Author: Y.Tsurui
  */ 
-
-#ifndef ATTINY806_FUNC
 
 #include <avr/io.h>
 
@@ -60,12 +67,12 @@ void setspeed(uint8_t direction, uint8_t speed)
 	spdCache2 = speed;
 	
 	//if (getYardModeStat()) speed = speed >> 1;	
-	if (getYardModeStat()) {
-		speed = (uint8_t)(speed * CV131 / 256) & 0x00FF;
-	}
+	//if (getYardModeStat()) {
+	//	speed = (uint8_t)(speed * CV131 / 256) & 0x00FF;
+	//}
 
 	if (direction != nowDirection) {
-		pwmSetDirection(direction);
+		//pwmSetDirection(direction);
 		nowDirection = direction;
 		pwm_cutout_timer = 255;
 	}
@@ -74,10 +81,10 @@ void setspeed(uint8_t direction, uint8_t speed)
 		//Emergency Stop
 		now_spd = 0;
 		target_spd = 0;
-		pwmSetSpeed(0);
+		////pwmSetSpeed(0);
 		return;
 	}
-
+/*
 	if ((target_spd == 0) && (CV140 != 0)) {
 		// Motor Start Delay Mode
 		if (speed != 0) {
@@ -91,6 +98,7 @@ void setspeed(uint8_t direction, uint8_t speed)
 			motorStartDelaySpd = 0;
 		}
 	}
+	*/
 
 	target_spd = speed;
 
@@ -107,6 +115,7 @@ void setspeed(uint8_t direction, uint8_t speed)
 		if (spdAnalogFlag) {
 			
 		} else {
+			/*
 			if (getABCstatus() != direction) {
 				if ((ABCworkedFlag != 0) && (CV53 != 0)) {
 					
@@ -119,31 +128,34 @@ void setspeed(uint8_t direction, uint8_t speed)
 						//if ((target_spd < now_spd) && (*deacceleRate == 0)) {
 						//Deacceleration
 						now_spd = speed;
-						pwmSetSpeed(speed);
+						//pwmSetSpeed(speed);
 					} else if ((target_spd > now_spd) && (CV1_6[2] == 0)) {
 						//} else if ((target_spd > now_spd) && (CV3 == 0)) {
 						//} else if ((target_spd > now_spd) && (*acceleRate == 0)) {
 						//Acceleration
 						now_spd = speed;
-						pwmSetSpeed(speed);
+						//pwmSetSpeed(speed);
 					} else if (target_spd == now_spd) {
 						now_spd = speed;
-						pwmSetSpeed(speed);
+						//pwmSetSpeed(speed);
 					}
 				}
 			} else {
+			*/
+			/*
 				ABCworkedFlag |= 1;
 				if ((CV54 == 0) && (CV1_6[3] == 0)) {
 					// Automatic Brake
 					now_spd = 0;
-					pwmSetSpeed(0);
+					//pwmSetSpeed(0);
 				}
-			}
+			*/
+			//}
 			
 		}
 	} else {
 		//pwm_set_spd(0);
-		pwmSetSpeed(0);
+		//pwmSetSpeed(0);
 	}
 }
 
@@ -219,11 +231,13 @@ void setspeed_128step(uint8_t direction, uint8_t speed)
 	setspeed(direction, scaled_spd);
 }
 
+/*
 void setspeed_analog(uint8_t direction)
 {
 	spdAnalogFlag = 1;
 	setspeed(direction, CV58);
 }
+*/
 
 
 void clock_receiver_train_ctrl(void)
@@ -235,19 +249,20 @@ void clock_receiver_train_ctrl(void)
 			//if ((target_spd < now_spd) && (CV4 == 0)) {
 			if ((target_spd < now_spd) && (CV1_6[3] == 0)) {
 				//Deacceleration
-				pwmSetSpeed(now_spd);
+				//pwmSetSpeed(now_spd);
 			//} else if ((target_spd > now_spd) && (CV3 == 0)) {
 			} else if ((target_spd > now_spd) && (CV1_6[2] == 0)) {
 				//Acceleration
-				pwmSetSpeed(now_spd);
+				//pwmSetSpeed(now_spd);
 			} else if (target_spd == now_spd) {
-				pwmSetSpeed(now_spd);
+				//pwmSetSpeed(now_spd);
 			}
 		}
 
 		return;	
 	}
 
+/*
 	if (motorStartDelayCount) {
 		clock_recv_counter++;
 		if (clock_recv_counter >= 100) {
@@ -274,102 +289,34 @@ void clock_receiver_train_ctrl(void)
 			if (now_spd < target_spd) {
 				if (Rate_counter >= CV59) {
 					now_spd++;
-					pwmSetSpeed(now_spd);
+					//pwmSetSpeed(now_spd);
 					Rate_counter = 0;
 				}
 			} else if (now_spd > target_spd) {
 				if (Rate_counter >= CV59) {
 					now_spd--;
-					pwmSetSpeed(now_spd);
+					//pwmSetSpeed(now_spd);
 					Rate_counter = 0;
 				}
 			} else {
 				Rate_counter = 0;
 			}
 		} else {
-		
-			if (getABCstatus() != nowDirection) {
-				// ABC Status Disable (ABC Acceleration / Normal Operation)
-				if (ABCworkedFlag & 0x01) {
-					// ABC worked Acceleration
-					if (CV53 == 0) {
-						if (CV1_6[2] == 0) {
-							now_spd = target_spd;
-							pwmSetSpeed(now_spd);
-							Rate_counter = 0;
-						} else if ((Rate_counter >= CV1_6[2]) && (now_spd < target_spd)) {
-							now_spd++;
-							pwmSetSpeed(now_spd);
-							Rate_counter = 0;
-						}
-					} else {
-						if ((Rate_counter >= CV53) && (now_spd < target_spd)) {
-							now_spd++;
-							pwmSetSpeed(now_spd);
-							Rate_counter = 0;
-						}
-					}
-					if (now_spd >= target_spd) {
-						ABCworkedFlag &= ~0x01;
-					}
-				} else {
-					// Normal Operation
-					if (now_spd < target_spd) {
-						//Acceleration
-						//if (Rate_counter == CV3) {
-						if (Rate_counter >= CV1_6[2]) {
-							now_spd++;
-							pwmSetSpeed(now_spd);
-							Rate_counter = 0;
-						}
-					} else if (now_spd > target_spd) {
-						//Deacceleration
-						//if (Rate_counter == CV4) {
-						if (Rate_counter >= CV1_6[3]) {
-							now_spd--;
-							pwmSetSpeed(now_spd);
-							Rate_counter = 0;
-						}
-					} else {
-						Rate_counter = 0;
-					}
-				
-				}
-			} else if (now_spd != 0) {
-				// ABC Enable (Stopping)
-				ABCworkedFlag |= 0x01;
-				
-				if (CV54 == 0) {
-					if (CV1_6[3] == 0) {
-						now_spd = 0;
-						pwmSetSpeed(0);
-						Rate_counter = 0;
-					} else {
-						if (Rate_counter >= CV1_6[3]) {
-							now_spd--;
-							pwmSetSpeed(now_spd);
-							Rate_counter = 0;
-						}
-					}
-				} else if (Rate_counter >= CV54) {
-					now_spd--;
-					pwmSetSpeed(now_spd);
-					Rate_counter = 0;
-				} 
-			}
+			
 		}
 		
 	}
+*/
 
 }
 
 
-/*
+
 uint8_t get_speed_8bit(void)
 {
 	return (now_spd);
 }
-*/
+
 
 
 
@@ -380,35 +327,5 @@ uint8_t checkABCreverseDirection(void) {
 	return (0);
 }
 
-
-void clockReceiverABCctrl(void) {
-	if (CV52 == 0) return;
-	if (getABCstatus() != nowDirection) {
-		ABCautoReverseCount1 = 0;
-		ABCautoReverseCount2 = 0;
-		return;
-	}
-	
-	ABCautoReverseCount1++;
-	if (ABCautoReverseCount1 >= 1000) {
-		ABCautoReverseCount1 = 0;
-		ABCautoReverseCount2++;
-		
-		if (ABCautoReverseCount2 >= CV52) {
-			if (ABCdirectionReverseFlag & 0x01) {
-				ABCdirectionReverseFlag &= ~0x01;
-			} else {
-				ABCdirectionReverseFlag |= 0x01;
-			}
-			if (nowDirection == 1) nowDirection = 2;
-			else if (nowDirection == 2) nowDirection = 1;
-			pwmSetDirection(nowDirection);
-			pwm_cutout_timer = 255;
-			
-			ABCautoReverseCount1 = 0;
-			ABCautoReverseCount2 = 0;
-		}
-	}
-}
 
 #endif

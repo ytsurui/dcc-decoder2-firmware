@@ -10,7 +10,10 @@
 #include "motor.h"
 #include "../dcc/cv_value.h"
 
+
 uint8_t pwmProgModeFlag = 0;
+
+#ifndef ATTINY806_FUNC
 
 uint8_t pwmfreqChangeFlag = 0;
 
@@ -27,10 +30,14 @@ uint8_t bemfReadFlag = 0;
 uint8_t bemfSaveSpdValue = 0;
 uint16_t bemfAdcValue = 0;
 
+uint8_t currentReadFlag = 0;
+uint16_t currentAdcValue = 0;
+
 void pwmChangeFrequency(uint8_t freqCfg);
 uint8_t calcSuperSlowDutyValue(void);
 
 void calcMotorPID(void);
+
 
 ISR(TCA0_OVF_vect)
 {
@@ -50,7 +57,7 @@ ISR(TCA0_OVF_vect)
 	}
 }
 
-
+#endif
 
 void initMotorModule(void)
 {
@@ -84,10 +91,9 @@ void initMotorModule(void)
 	ADC0.CTRLC = 0x40 | ADC_REFSEL_INTREF_gc | ADC_PRESC_DIV32_gc;
 	ADC0.CTRLD = ADC_INITDLY_DLY16_gc | ADC_ASDV_ASVOFF_gc;
 	ADC0.CTRLE = 0;
-	
-	
-	
 }
+
+#ifndef ATTINY806_FUNC
 
 void pwmSetDirection(uint8_t dir)
 {
@@ -130,6 +136,8 @@ void pwmSetSpeed(uint8_t spd)
 	}
 }
 
+#endif
+
 void pwmProgMode(uint8_t stat)
 {
 	if (stat == PWM_PROG_MODE_ON) {
@@ -154,6 +162,8 @@ void pwmProgMode(uint8_t stat)
 		pwmProgModeFlag = 0;
 	}
 }
+
+#ifndef ATTINY806_FUNC
 
 void pwmChangeFrequency(uint8_t freqCfg)
 {
@@ -239,6 +249,23 @@ void HSclockReceiverMotorCtrl(void)
 		return;
 	}
 	
+	if (currentReadFlag) {
+		if (currentReadFlag == 1) {
+			// Enable ADC
+			ADC0.MUXPOS = ADC_MUXPOS_AIN1_gc;
+			ADC0.COMMAND = ADC_STCONV_bm;;
+			currentReadFlag = 2;
+		} else if (currentReadFlag == 2) {
+			if ((ADC0.COMMAND & ADC_STCONV_bm) == 0) {
+				// ADC Completed
+				currentAdcValue = ADC0.RES;
+				currentReadFlag = 0;
+			}
+		} else {
+			currentReadFlag = 0;
+		}
+	}
+	
 	if ((CV60_64[0] & 0x7F) == 0) {
 		// Enable PWM Output
 		//TCA0.SINGLE.CTRLB = TCA_SINGLE_WGMODE_SINGLESLOPE_gc | TCA_SINGLE_CMP0_bm;
@@ -289,10 +316,20 @@ uint8_t get_speed_8bit(void)
 	return (nowSPDvalue);
 }
 
+void captureCurrent(void)
+{
+	if (bemfReadFlag != 0) return;
+	if (currentReadFlag == 0) currentReadFlag = 1;
+}
+
+uint16_t getCurrentValue(void) {
+	return (currentAdcValue);
+}
 
 void captureBEMF(void)
 {
 	if (~CV60_64[0] & 0x80) return;
+	if (currentReadFlag != 0) return;
 	if (bemfReadFlag == 0) bemfReadFlag = 1;
 }
 
@@ -322,7 +359,10 @@ void calcMotorPID(void) {
 	Ki = CV55_57[1];	// CV56
 	Kd = CV55_57[2];	// CV57
 	
-	bemfADCfixedValue = (bemfAdcValue >> 1) * 255 / CV138;	// CV138 = 175: 2.96V ADC MAX to Scale 0-255
+	bemfADCfixedValue = (bemfAdcValue >> 1) * 255 / 
+	
+	
+	CV138;	// CV138 = 175: 2.96V ADC MAX to Scale 0-255
 	if (bemfADCfixedValue > 255) bemfADCfixedValue = 255;
 	
 	P = (int16_t)throttleSPDvalue - bemfADCfixedValue;
@@ -356,6 +396,7 @@ uint16_t getBEMFFixedSpdValue(void) {
 	return (bemfSPDvalue);
 }
 
+#endif
 
 void motorFuncDriver(uint8_t stat, uint8_t direction) {
 	if (CV33_43[10] != 1) return;

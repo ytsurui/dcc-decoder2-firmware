@@ -5,6 +5,8 @@
  *  Author: Y.Tsurui
  */ 
 
+#ifndef ATTINY806_FUNC
+
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 
@@ -140,6 +142,16 @@ void railcomChannel1AddrSend() {
 			railcomSendMode = 0;
 		}
 		return;
+	} else if (CV244 == 0x04) {
+		bemfReadTemp = getCurrentValue();
+		if (railcomSendMode == 0) {
+			channel1Send(0x01, (uint8_t)((bemfReadTemp & 0xFF00) >> 8));
+			railcomSendMode = 1;
+		} else {
+			channel1Send(0x02, (uint8_t)(bemfReadTemp & 0x00FF));
+			railcomSendMode = 0;
+		}
+		return;
 	}
 	
 	
@@ -173,3 +185,5 @@ void railcomChannel1AddrSend() {
 void railcomChannel2AddrSend() {
 	
 }
+
+#endif

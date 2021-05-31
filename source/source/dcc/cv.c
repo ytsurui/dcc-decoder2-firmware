@@ -91,6 +91,7 @@ void initialize_cv(void)
 	write_eeprom(43, CV43_DEFAULT);
 	write_eeprom(44, CV44_DEFAULT);
 	write_eeprom(45, CV45_DEFAULT);
+#ifndef ATTINY806_FUNC
 	write_eeprom(47, CV47_DEFAULT);
 	write_eeprom(50, CV50_DEFAULT);
 	write_eeprom(51, CV51_DEFAULT);
@@ -102,6 +103,7 @@ void initialize_cv(void)
 	write_eeprom(57, CV57_DEFAULT);
 	write_eeprom(58, CV58_DEFAULT);
 	write_eeprom(59, CV59_DEFAULT);
+#endif
 	write_eeprom(60, CV60_DEFAULT);
 	write_eeprom(61, CV61_DEFAULT);
 	write_eeprom(62, CV62_DEFAULT);
@@ -117,11 +119,12 @@ void initialize_cv(void)
 	write_eeprom(120, CV120_DEFAULT);
 	write_eeprom(121, CV121_DEFAULT);
 	write_eeprom(122, CV122_DEFAULT);
+#ifndef ATTINY806_FUNC
 	write_eeprom(131, CV131_DEFAULT);
 	write_eeprom(138, CV138_DEFAULT);
 	write_eeprom(140, CV140_DEFAULT);
 	write_eeprom(244, CV244_DEFAULT);
-	
+#endif
 	initialize_speed_table();
 	
 	write_eeprom(0, 0);
@@ -212,11 +215,11 @@ void load_cv(void)
 	CV115 = read_cv_raw(115);
 	CV116 = read_cv_raw(116);
 	*/
-	
+
 	for (i = 0; i < 28; i++) {
 		CV67_94[i] = read_cv_raw(67 + i);
 	}
-	
+		
 	for (i = 0; i < 11; i++) {
 		CV33_43[i] = read_cv_raw(33 + i);
 		setFuncTable(CV33_43[i] & 0x1F);
@@ -227,6 +230,7 @@ void load_cv(void)
 	setFuncTable(CV44 & 0x1F);
 	setFuncTable(CV45 & 0x1F);
 	
+#ifndef ATTINY806_FUNC
 	CV131 = read_cv_raw(131);
 	
 	
@@ -248,6 +252,7 @@ void load_cv(void)
 	
 	CV58 = read_cv_raw(58);
 	CV59 = read_cv_raw(59);
+#endif
 	
 	/*
 	CV60 = read_cv_raw(60);
@@ -261,11 +266,11 @@ void load_cv(void)
 		CV60_64[i] = read_cv_raw(60 + i);
 	}
 	setFuncTable(CV60_64[3] & 0x1F);
-
+#ifndef ATTINY806_FUNC
 	CV140 = read_cv_raw(140);	// Motor Start Delay Time (1/10sec)
 
 	CV244 = read_cv_raw(244);
-	
+#endif	
 	/*
 	setFuncTable(CV33 & 0x1F);
 	setFuncTable(CV34 & 0x1F);
@@ -373,6 +378,7 @@ void write_cv_byte(uint16_t CVnum, uint8_t data)
 			CV45 = data;
 			setFuncTable(CV45 & 0x1F);
 			break;
+#ifndef ATTINY806_FUNC
 		case 47:
 			CV47 = data;
 			break;
@@ -402,6 +408,7 @@ void write_cv_byte(uint16_t CVnum, uint8_t data)
 		case 59:
 			CV59 = data;
 			break;
+#endif
 /*
 		case 60:
 			CV60 = data;
@@ -460,7 +467,6 @@ void write_cv_byte(uint16_t CVnum, uint8_t data)
 		case 94:
 			CV67_94[CVnum2 - 67] = data;
 			break;
-		
 		/*
 		case 112:
 			CV112 = data;
@@ -488,6 +494,7 @@ void write_cv_byte(uint16_t CVnum, uint8_t data)
 		case 122:
 			CV112_CV122[CVnum2 - 112] = data;
 			break;
+#ifndef ATTINY806_FUNC
 		case 131:
 			CV131 = data;
 			break;
@@ -500,6 +507,7 @@ void write_cv_byte(uint16_t CVnum, uint8_t data)
 		case 244:
 			CV244 = data;
 			break;
+#endif
 	}
 	/*
 	eeprom_busy_wait();

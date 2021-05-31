@@ -5,16 +5,27 @@ VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "MotorDecoder2", "MotorDecoder2.cproj", "{DCE6C7E3-EE26-4D79-826B-08594B9AD897}"
 EndProject
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "FuncDecoder2", "FuncDecoder2.cproj", "{DD425FA5-45AE-4090-A426-6F5293F96CD9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|AVR = Debug|AVR
+		Func-Release|AVR = Func-Release|AVR
 		Release|AVR = Release|AVR
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Debug|AVR.ActiveCfg = Debug|AVR
 		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Debug|AVR.Build.0 = Debug|AVR
+		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Func-Release|AVR.ActiveCfg = Release|AVR
+		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Func-Release|AVR.Build.0 = Release|AVR
 		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Release|AVR.ActiveCfg = Release|AVR
 		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Release|AVR.Build.0 = Release|AVR
+		{DD425FA5-45AE-4090-A426-6F5293F96CD9}.Debug|AVR.ActiveCfg = Func-Debug|AVR
+		{DD425FA5-45AE-4090-A426-6F5293F96CD9}.Debug|AVR.Build.0 = Func-Debug|AVR
+		{DD425FA5-45AE-4090-A426-6F5293F96CD9}.Func-Release|AVR.ActiveCfg = Func-Release|AVR
+		{DD425FA5-45AE-4090-A426-6F5293F96CD9}.Func-Release|AVR.Build.0 = Func-Release|AVR
+		{DD425FA5-45AE-4090-A426-6F5293F96CD9}.Release|AVR.ActiveCfg = Func-Release|AVR
+		{DD425FA5-45AE-4090-A426-6F5293F96CD9}.Release|AVR.Build.0 = Func-Release|AVR
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
