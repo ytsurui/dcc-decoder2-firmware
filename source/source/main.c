@@ -98,6 +98,7 @@ int main(void)
 			}
 		} else {
 			
+#ifndef ATTINY806_FUNC
 			ABCpollerFlag = ABCpollerReaderFlag();
 			if (ABCpollerFlag == 1) {
 				ABCcheckRight();
@@ -106,25 +107,32 @@ int main(void)
 				ABCcheckRight();
 				ABCcheckLeft();
 			}
-		
+
 			if (checkRailcomSendChannel1()) {
 				railcomChannel1AddrSend();
 			}
+#endif
 		
 			if (chkHighSpeedRTCflag()) {
 				// 16kHz Event Timer
+#ifndef ATTINY806_FUNC
 				HSclockReceiverMotorCtrl();
+#endif
 				HSclockReceiverFuncCtrl();
 			}
 			
 			if (chkRTCflag()) {
 				if (RTCclkFlag == 0) RTCclkFlag = 1;
-				
+
+#ifndef ATTINY806_FUNC
 				BEMFintervalCounter++;
-				if (BEMFintervalCounter == 10) { // 100Hz BEMF Poller
+				if (BEMFintervalCounter == 5) {	// 100Hz MOSFET Current Poller
+					captureCurrent();
+				} else if (BEMFintervalCounter == 10) { // 100Hz BEMF Poller
 					captureBEMF();
 					BEMFintervalCounter = 0;
 				}
+#endif
 			}
 						
 			
@@ -134,6 +142,7 @@ int main(void)
 						DCCpollerClkReceiver();
 						analogPollerClkReceiver();
 						break;
+#ifndef ATTINY806_FUNC
 					case 2:
 						//ABCclkReceiver();
 						clockReceiverABCctrl();
@@ -141,6 +150,7 @@ int main(void)
 					case 3:
 						clock_receiver_train_ctrl();
 						break;
+#endif
 					case 4:
 						clockReceiverFuncCtrl();
 						break;
@@ -167,11 +177,14 @@ int main(void)
 							}
 							*/
 							if (readAnalogStat()) {
+								#ifndef ATTINY806_FUNC
 								setspeed_analog(analogDirection());
+								#endif
 								funcCtrlAnalog(analogDirection());
 							}
 						}
 						break;
+					#ifndef ATTINY806_FUNC
 					case 15:
 						if (CV47 & 0x80) {
 							changeFreqCount++;
@@ -192,6 +205,7 @@ int main(void)
 							}
 						}
 						break;
+					#endif
 				}
 				RTCclkFlag++;
 				if (RTCclkFlag >= 16) RTCclkFlag = 0;

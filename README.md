@@ -1,13 +1,14 @@
-# ATtiny1606 DCC Decoder Firmware
+# ATtiny1606 / ATtiny806 DCC Decoder Firmware
 
 NMRA規格の信号を受信して動作する、DCCデコーダーのファームウェアです。
 
 [Microchip ATtiny1606](https://www.microchip.com/wwwproducts/en/ATtiny1606)で動作するように作成してあります。
-<br>(プログラム領域の都合上、ATtiny806などの下位モデルには搭載できません)
+<br>ファンクション機能のみに限定したバージョンは、[Microchip ATtiny806](https://www.microchip.com/wwwproducts/en/ATtiny806)でも動作するように作成してあります。
+<br>(プログラム領域の都合上、ATtiny406などの下位モデルには搭載できません)
 
 別のリポジトリに置いてある、対応する基板と組み合わせてご利用ください。
 
-## 主要スペック
+## 主要スペック (ATtiny1606 / フル機能版)
   * モーターのコントロールに対応
   * モーター制御は14-Step、28-Step、128-Stepに対応
   * スピードテーブル、最小電圧、中間電圧、最大電圧の設定に対応
@@ -25,7 +26,7 @@ NMRA規格の信号を受信して動作する、DCCデコーダーのファー�
     <br>純直流出力コントローラーだけではなく、PWM出力方式のコントローラーにおいても問題なく制御可能。
     <br>(詳細は動作確認済みのコントローラー類を参照)
   * BiDi (Railcom) チャンネル1による車両アドレス情報の送出に対応
-  
+
 
 ## 対応する基板設計データ
 
@@ -42,6 +43,7 @@ NMRA規格の信号を受信して動作する、DCCデコーダーのファー�
 ## 各種ドキュメント
 
   * [CV値一覧](docs/CVList.md)
+  * [CV値一覧 (ファンクション限定版)](docs/CVList_tiny806.md)
   * [ファンクション番号の設定方法](docs/function.md)
   * [ATtiny1606のピン割り当て表](docs/attiny1606-pin.md)
   * [アナログ環境での運転・設定](docs/analogops.md)

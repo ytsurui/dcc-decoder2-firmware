@@ -28,6 +28,8 @@ void HSclockReceiverMotorCtrl(void);
 
 uint8_t get_speed_8bit(void);
 
+void captureCurrent(void);
+uint16_t getCurrentValue(void);
 void captureBEMF(void);
 uint16_t getBEMFvalue(void);
 uint16_t getBEMFFixedSpdValue(void);

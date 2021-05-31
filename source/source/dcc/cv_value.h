@@ -50,7 +50,11 @@
 #define CV40_DEFAULT	0b01000001		// F1 Forward	(Func6)
 #define CV41_DEFAULT	0b00000011		// F3 Roomlight	(Func7)
 #define CV42_DEFAULT	0b00000000		// F0 (Func8, MotorDriver)
+#ifdef ATTINY806_FUNC
+#define CV43_DEFAULT	0b00000001		// MotorDriver Function Enable (0: Disabled / 1: Enabled)
+#else
 #define CV43_DEFAULT	0b00000000		// MotorDriver Function Enable (0: Disabled / 1: Enabled)
+#endif
 #define CV44_DEFAULT	0b00111110		// Headlight On Backward (Disabled)
 #define CV45_DEFAULT	0b00111110		// Headlight On Forward (Disabled)
 #define CV50_DEFAULT	0b11001001		// Analog Function Enable Flag (bit7-0: Func8-Func1 Enable)
@@ -130,6 +134,7 @@ uint8_t CV47;		// PWM KickStart Configuration
 
 uint8_t CV50;		// Analog Function Enable Flag (bit7-0: Func8-Func1 Enable)
 
+#ifndef ATTINY806_FUNC
 uint8_t CV51;		// Automatic Brake Ignore Function
 uint8_t CV52;		// Automatic Brake Auto-Reverse (0: Disabled / 1-255: Stop seconds)
 uint8_t CV53;		// Automatic Brake Acceleration Rate
@@ -143,7 +148,7 @@ uint8_t CV138;		// BEMF PID Feedback ADC Scaler Max Value;
 
 uint8_t CV58;		// Analog Max Speed
 uint8_t CV59;		// Analog Acceleration Rate
-
+#endif
 //uint8_t CV60;		// Super Slow Configuration (0: Disable / 1: 60Hz / 2: 120Hz / 3: 30Hz)
 //uint8_t CV61;		// Super Slow Initialize Duty (0-255)
 //uint8_t CV62;		// Super Slow End Speed (0-255)
@@ -153,17 +158,19 @@ uint8_t CV60_64[5];
 
 uint8_t CV67_94[28];	// Speed Table
 
-
 //uint8_t CV112;		// Headlight illuminate Value (bit7-bit4)
 //uint8_t CV114;		// Func1 Type Configuration
 //uint8_t CV115;		// Func2 Type Configuration
 
-uint8_t CV131;				// Yard Mode Max Speed
 uint8_t CV112_CV122[11];
+
+#ifndef ATTINY806_FUNC
+uint8_t CV131;				// Yard Mode Max Speed
 
 uint8_t CV140;      // Motor Start Delay Time (1/10sec)
 
 uint8_t CV244;      // Railcom Debug-Output (0: Normal / 1: BEMF ADC)
+#endif
 
 uint8_t funcTable1;
 uint8_t funcTable2;

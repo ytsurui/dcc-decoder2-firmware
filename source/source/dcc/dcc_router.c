@@ -170,6 +170,7 @@ void dccNormalOperation(uint8_t packetLength, uint8_t packetData[])
 					else directionFlag = 1;
 				}
 				setspeed_128step(directionFlag, spdCache);
+
 			} else {
 				speed128stepCache = spdCache;
 			}
@@ -201,6 +202,7 @@ void dccNormalOperation(uint8_t packetLength, uint8_t packetData[])
 					else directionFlag = 1;
 				}
 				setspeed_28step(directionFlag, packetData[packetReadStartPos]);
+
 			} else {
 				speed28stepCache = packetData[packetReadStartPos];
 			}

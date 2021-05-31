@@ -12,9 +12,19 @@ uint8_t rtcFlag = 0;
 
 
 ISR(RTC_PIT_vect) {
+#ifdef ATTINY806_FUNC
+	if (rtcFlag & 0x04) {
+		rtcFlag |= 0x01;
+		rtcFlag &= ~0x04;
+	} else {
+		rtcFlag |= 0x04;
+	}
+	RTC.PITINTFLAGS = RTC_PI_bm;
+#else
 	rtcFlag |= 0x01;
 	RTC.PITINTFLAGS = RTC_PI_bm;
 	//PORTA.OUT = 0xFF;
+#endif
 }
 
 ISR(RTC_CNT_vect) {
