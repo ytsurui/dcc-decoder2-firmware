@@ -156,7 +156,9 @@ uint8_t CV59;		// Analog Acceleration Rate
 //uint8_t CV64;		// Force Railcom Enabled (CV29 bit3 Overwrite)
 uint8_t CV60_64[5];
 
+#ifndef ATTINY806_FUNC
 uint8_t CV67_94[28];	// Speed Table
+#endif
 
 //uint8_t CV112;		// Headlight illuminate Value (bit7-bit4)
 //uint8_t CV114;		// Func1 Type Configuration

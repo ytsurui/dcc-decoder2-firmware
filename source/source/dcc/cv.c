@@ -31,6 +31,7 @@ void write_eeprom(uint8_t addr, uint8_t data)
 	eeprom_update_byte(val + addr, data);
 }
 
+#ifndef ATTINY806_FUNC
 void initialize_speed_table(void)
 {
 	write_eeprom(67, 9);
@@ -62,6 +63,7 @@ void initialize_speed_table(void)
 	write_eeprom(93, 246);
 	write_eeprom(94, 255);
 }
+#endif
 
 void initialize_cv(void)
 {
@@ -124,9 +126,10 @@ void initialize_cv(void)
 	write_eeprom(138, CV138_DEFAULT);
 	write_eeprom(140, CV140_DEFAULT);
 	write_eeprom(244, CV244_DEFAULT);
-#endif
+
 	initialize_speed_table();
-	
+#endif
+
 	write_eeprom(0, 0);
 	
 	load_cv();
@@ -216,9 +219,11 @@ void load_cv(void)
 	CV116 = read_cv_raw(116);
 	*/
 
+#ifndef ATTINY806_FUNC
 	for (i = 0; i < 28; i++) {
 		CV67_94[i] = read_cv_raw(67 + i);
 	}
+#endif
 		
 	for (i = 0; i < 11; i++) {
 		CV33_43[i] = read_cv_raw(33 + i);
@@ -437,6 +442,7 @@ void write_cv_byte(uint16_t CVnum, uint8_t data)
 			CV60_64[3] = data;
 			setFuncTable(CV60_64[3] & 0x1F);
 			break;
+#ifndef ATTINY806_FUNC
 		case 67:
 		case 68:
 		case 69:
@@ -467,6 +473,7 @@ void write_cv_byte(uint16_t CVnum, uint8_t data)
 		case 94:
 			CV67_94[CVnum2 - 67] = data;
 			break;
+#endif
 		/*
 		case 112:
 			CV112 = data;

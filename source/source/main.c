@@ -26,7 +26,9 @@
 #include "app/func_ctrl.h"
 #include "app/train_ctrl.h"
 
+#ifndef NO_RAILCOM
 #include "dcc/railcom.h"
+#endif
 
 #include "dcc/cv_value.h"
 
@@ -44,15 +46,18 @@ int main(void)
 	
 	uint8_t dccRecvPacketCache[48];
 	uint8_t dccRecvPacketLength;
-	
+#ifndef ATTINY806_FUNC
 	uint8_t changeFreqCount = 0;
 	uint8_t changeFreqCount2 = 0;
+	
+	uint8_t BEMFintervalCounter = 0;
+#endif
 	
 	uint8_t RTCclkFlag = 0;
 	
 	uint8_t ABCpollerFlag = 0;
 	
-	uint8_t BEMFintervalCounter = 0;
+	
 	
 	//uint16_t testcount = 0;
 	
@@ -62,7 +67,9 @@ int main(void)
 	initFuncPort();
 	initDCCpoller();
 	initUART();
+#ifndef ATTINY806_FUNC
 	initABCpoller();
+#endif
 	
 	load_cv();
 	
@@ -98,7 +105,7 @@ int main(void)
 			}
 		} else {
 			
-#ifndef ATTINY806_FUNC
+#ifndef NO_ABC
 			ABCpollerFlag = ABCpollerReaderFlag();
 			if (ABCpollerFlag == 1) {
 				ABCcheckRight();
@@ -107,7 +114,8 @@ int main(void)
 				ABCcheckRight();
 				ABCcheckLeft();
 			}
-
+#endif
+#ifndef NO_RAILCOM
 			if (checkRailcomSendChannel1()) {
 				railcomChannel1AddrSend();
 			}
