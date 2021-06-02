@@ -5,6 +5,8 @@
  *  Author: Y.Tsurui
  */ 
 
+#ifndef NO_ABC
+
 #include <avr/io.h>
 #include "ABC_detector.h"
 #include "../dcc/cv_value.h"
@@ -153,3 +155,5 @@ uint8_t getABCstatus(void)
 	}
 	return (ABCstatus);
 }
+
+#endif

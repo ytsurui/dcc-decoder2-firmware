@@ -97,6 +97,8 @@
       <Value>NDEBUG</Value>
       <Value>F_CPU=10000000UL</Value>
       <Value>ATTINY806_FUNC</Value>
+      <Value>NO_ABC</Value>
+      <Value>NO_RAILCOM</Value>
     </ListValues>
   </avrgcc.compiler.symbols.DefSymbols>
   <avrgcc.compiler.directories.IncludePaths>

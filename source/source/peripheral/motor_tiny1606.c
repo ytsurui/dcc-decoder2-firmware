@@ -69,7 +69,7 @@ void initMotorModule(void)
 	
 	PORTA.OUTCLR |= PIN6_bm;
 	PORTC.OUTCLR |= PIN3_bm;
-	
+#ifndef ATTINY806_FUNC
 	// Timer0 Configuration
 	TCA0.SINGLE.CTRLA = TCA_SINGLE_CLKSEL_DIV1_gc | TCA_SINGLE_ENABLE_bm;
 	TCA0.SINGLE.CTRLB = TCA_SINGLE_WGMODE_SINGLESLOPE_gc | TCA_SINGLE_CMP0_bm;
@@ -91,6 +91,7 @@ void initMotorModule(void)
 	ADC0.CTRLC = 0x40 | ADC_REFSEL_INTREF_gc | ADC_PRESC_DIV32_gc;
 	ADC0.CTRLD = ADC_INITDLY_DLY16_gc | ADC_ASDV_ASVOFF_gc;
 	ADC0.CTRLE = 0;
+#endif
 }
 
 #ifndef ATTINY806_FUNC
@@ -142,8 +143,9 @@ void pwmProgMode(uint8_t stat)
 {
 	if (stat == PWM_PROG_MODE_ON) {
 		// Disable PWM Output
+		#ifndef ATTINY806_FUNC
 		TCA0.SINGLE.CTRLB = TCA_SINGLE_WGMODE_SINGLESLOPE_gc;
-		
+		#endif
 		// Forward Output
 		PORTC.OUTCLR = PIN3_bm;
 		PORTA.OUTSET = PIN6_bm;
@@ -157,8 +159,9 @@ void pwmProgMode(uint8_t stat)
 		PORTB.OUTCLR = PIN0_bm;
 		
 		// Enable PWM Output
+		#ifndef ATTINY806_FUNC
 		TCA0.SINGLE.CTRLB = TCA_SINGLE_WGMODE_SINGLESLOPE_gc | TCA_SINGLE_CMP0_bm;
-		
+		#endif
 		pwmProgModeFlag = 0;
 	}
 }
@@ -398,12 +401,15 @@ uint16_t getBEMFFixedSpdValue(void) {
 
 #endif
 
+
 void motorFuncDriver(uint8_t stat, uint8_t direction) {
 	if (CV33_43[10] != 1) return;
 	
 	// Disable PWM Output
+	#ifndef ATTINY806_FUNC
 	TCA0.SINGLE.CTRLB = TCA_SINGLE_WGMODE_SINGLESLOPE_gc;
-	
+	#endif
+		
 	if (direction == PWM_DIRECTION_FOR) {
 		// PWD
 		PORTC.OUTCLR |= PIN3_bm;

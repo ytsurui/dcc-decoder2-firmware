@@ -5,7 +5,7 @@
  *  Author: Y.Tsurui
  */ 
 
-#ifndef ATTINY806_FUNC
+#ifndef NO_RAILCOM
 //void channel1Send(uint8_t ID, uint8_t data);
 void railcomChannel1AddrSend();
 

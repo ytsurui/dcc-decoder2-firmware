@@ -5,7 +5,7 @@
  *  Author: Y.Tsurui
  */ 
 
-#ifndef ATTINY806_FUNC
+#ifndef NO_RAILCOM
 
 #include <avr/io.h>
 #include <avr/pgmspace.h>
@@ -29,7 +29,7 @@ const PROGMEM uint8_t encodeDataTable[64] = {	0xAC, 0xAA, 0xA9, 0xA5, 0xA3, 0xA6
 												0xC6, 0xCC, 0x78, 0x17, 0x1B, 0x1D, 0x1E, 0x2E,
 												0x36, 0x3A, 0x27, 0x2B, 0x2D, 0x35, 0x39, 0x33};
 
-
+/*
 void sendUartDecimalStub(uint8_t data) {
 	sendUart(0x30 + data);
 }
@@ -68,7 +68,7 @@ void sendUartDecimal(uint16_t decimal)
 	}
 	sendUartDecimalStub((uint8_t)(decimal & 0xFF));
 }
-
+*/
 
 uint8_t convToASCII(uint8_t data) {
 	if (data < 10) {
@@ -111,8 +111,10 @@ void channel1Send(uint8_t ID, uint8_t data)
 }
 
 void railcomChannel1AddrSend() {
+	
+#ifndef ATTINY806_FUNC
 	uint16_t bemfReadTemp;
-		
+
 	if (CV244 == 0x01) {
 		bemfReadTemp = getBEMFvalue() >> 1;
 		if (railcomSendMode == 0) {
@@ -153,7 +155,7 @@ void railcomChannel1AddrSend() {
 		}
 		return;
 	}
-	
+#endif
 	
 	if ((CV29 & 0x08) == 0) return;
 	
