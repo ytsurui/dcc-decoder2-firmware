@@ -13,6 +13,7 @@
 uint8_t funcEffect(uint8_t stat, uint8_t cvType, uint8_t counter, uint16_t *effectCounter, uint8_t *ctrlOverride, uint8_t *HSfuncValue) {
 	uint8_t iValue;
 	uint8_t iValue2;
+	static uint8_t effectInternalCounter;
 	
 	iValue = (cvType & 0xF0) >> 4;
 	if ((cvType & 0x0F) == 0x01) {
@@ -50,6 +51,7 @@ uint8_t funcEffect(uint8_t stat, uint8_t cvType, uint8_t counter, uint16_t *effe
 			return (0);
 		}
 		
+		/*
 		if (*effectCounter != 0) {
 			if (*effectCounter < 60) {
 				*ctrlOverride = 0;
@@ -79,6 +81,63 @@ uint8_t funcEffect(uint8_t stat, uint8_t cvType, uint8_t counter, uint16_t *effe
 			*HSfuncValue = 0;
 			//return (iValue);
 			return ((iValue << 4) | 0x0F);
+		}
+		*/
+		if (*effectCounter != 0) {
+			if (*effectCounter < 40) {
+				*ctrlOverride = 1;
+				*HSfuncValue = 0;
+				effectInternalCounter = 0;
+				return ((iValue << 2) | 0x03);	// 50% -> 25%
+			}
+			if (*effectCounter < 130) {
+				*ctrlOverride = 1;
+				*HSfuncValue = 0;
+				return (iValue);	// 20% -> 8%
+			}
+			if (*effectCounter < 180) {
+				*ctrlOverride = 1;
+				*HSfuncValue = 0;
+				//return ((iValue << 4) | 0x0F) * 0.7;	// 70% -> 50%
+				return ((iValue << 3) | 0x07);
+			}
+			if (*effectCounter < 210) {
+				*ctrlOverride = 1;
+				*HSfuncValue = 0;
+				//return ((iValue << 4) | 0x0F) * 0.7;	// 70% -> 50%
+				return ((iValue << 2) | 0x03);	// 50% -> 25%
+			}
+			
+			if (*effectCounter < 380) {
+				if (*effectCounter & 0x08) {
+					*ctrlOverride = 1;
+					*HSfuncValue = 0;
+					effectInternalCounter++;
+					return (0x02 * effectInternalCounter);
+				} else {
+					*ctrlOverride = 1;
+					*HSfuncValue = 0;
+					//return ((iValue << 4) | 0x0F) * 0.4;	// 40%
+					//return ((iValue << 1) | 0x01);	// 50% -> 25%
+					return (iValue);
+				}
+			}
+			/*
+			if (*effectCounter < 375) {
+				*ctrlOverride = 1;
+				*HSfuncValue = 0;
+				//return ((iValue << 4) | 0x0F) * 0.4;	// 40%
+				return ((iValue << 1) | 0x01);	// 50% -> 25%
+			}
+			*/
+			
+			*effectCounter = 0;
+			*ctrlOverride = 0;
+			*HSfuncValue = 0;
+			//return (iValue);
+			return ((iValue << 4) | 0x0F);
+			
+			
 		}
 		
 		
