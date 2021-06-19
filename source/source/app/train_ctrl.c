@@ -17,6 +17,7 @@
 #include "../peripheral/motor.h"
 #include "../peripheral/ABC_detector.h"
 #include "func_ctrl.h"
+#include "../peripheral/funcport.h"
 
 uint8_t target_spd;
 uint8_t now_spd;
@@ -62,6 +63,14 @@ void setspeed(uint8_t direction, uint8_t speed)
 	//if (getYardModeStat()) speed = speed >> 1;	
 	if (getYardModeStat()) {
 		speed = (uint8_t)(speed * CV131 / 256) & 0x00FF;
+	}
+	
+	if (readDirectionReverse()) {
+		if (direction == 2) {
+			direction = 1;
+		} else {
+			direction = 2;
+		}
 	}
 
 	if (direction != nowDirection) {
