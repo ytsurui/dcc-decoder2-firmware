@@ -93,9 +93,9 @@ void initialize_cv(void)
 	write_eeprom(43, CV43_DEFAULT);
 	write_eeprom(44, CV44_DEFAULT);
 	write_eeprom(45, CV45_DEFAULT);
+	write_eeprom(50, CV50_DEFAULT);
 #ifndef ATTINY806_FUNC
 	write_eeprom(47, CV47_DEFAULT);
-	write_eeprom(50, CV50_DEFAULT);
 	write_eeprom(51, CV51_DEFAULT);
 	write_eeprom(52, CV52_DEFAULT);
 	write_eeprom(53, CV53_DEFAULT);
@@ -235,13 +235,14 @@ void load_cv(void)
 	setFuncTable(CV44 & 0x1F);
 	setFuncTable(CV45 & 0x1F);
 	
+	CV50 = read_cv_raw(50);
+	
 #ifndef ATTINY806_FUNC
 	CV131 = read_cv_raw(131);
 	
 	
 	CV47 = read_cv_raw(47);
 	
-	CV50 = read_cv_raw(50);
 	
 	CV51 = read_cv_raw(51);		// Automatic Brake Ignore Function
 	setFuncTable(CV51 & 0x1F);	
