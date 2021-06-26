@@ -60,7 +60,7 @@ uint8_t __attribute__((section(".eeprom"))) val[] =
 	/*  47 */	CV47_DEFAULT,	// PWM KickStart Configuration
 	/*  48 */	0x00,
 	/*  49 */	0x00,
-	/*  50 */	0x00,
+	/*  50 */	CV50_DEFAULT,	// Analog Function Enable Flag (bit7-0: Func8-Func1 Enable)
 	/*  51 */	CV51_DEFAULT,	// Automatic Brake Ignore Function (Default: F5)
 	/*  52 */	CV52_DEFAULT,	// Automatic Brake Auto-Reverse (0: Disabled / 1-255: Stop seconds)
 	/*  53 */	CV53_DEFAULT,	// Automatic Brake Acceleration Rate
