@@ -51,11 +51,12 @@ int main(void)
 	uint8_t changeFreqCount2 = 0;
 	
 	uint8_t BEMFintervalCounter = 0;
+	
+	uint8_t ABCpollerFlag = 0;
 #endif
 	
 	uint8_t RTCclkFlag = 0;
 	
-	uint8_t ABCpollerFlag = 0;
 	
 	
 	

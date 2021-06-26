@@ -130,7 +130,9 @@ uint8_t CV33_43[11];
 uint8_t CV44;		// Headlight Only Function Backward
 uint8_t CV45;		// Headlight Only Function Forward
 
+#ifndef ATTINY806_FUNC
 uint8_t CV47;		// PWM KickStart Configuration
+#endif
 
 uint8_t CV50;		// Analog Function Enable Flag (bit7-0: Func8-Func1 Enable)
 
