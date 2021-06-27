@@ -30,6 +30,23 @@ void basicACK() {
 	pwmProgMode(PWM_PROG_MODE_ON);
 }
 
+void tinybasicACK() {
+	basicACKcounter = 11;
+	basicACKflag = 1;
+	
+	funcPortProgACK(FUNC_PROG_ACK_ON);
+	pwmProgMode(PWM_PROG_MODE_ON);
+}
+
+void tinybasicACKoff() {
+	basicACKcounter = 0;
+	basicACKflag = 0;
+	funcPortProgACK(FUNC_PROG_ACK_OFF);
+	pwmProgMode(PWM_PROG_MODE_OFF);
+}
+
+
+
 void resetPageFlag(void) {
 	service_page_reg_flag = 0;
 }
@@ -100,18 +117,21 @@ void dccProgPageMode(uint8_t packetLength, uint8_t packetData[])
 				}
 			}
 		}
-		
+	
 	} else {
 		packetProgCache[0] = packetData[0];
 		packetProgCache[1] = packetData[1];
 		packetProgCache[2] = packetData[2];
 		basicACKflag = 0;
 	}
+	
 }
 
 void dccProgDirectMode(uint8_t packetLength, uint8_t packetData[])
 {
 	uint16_t cvAddr;
+	uint8_t BitMask, BitPos, cvCache;
+	
 	
 	if ((packetData[0] == packetProgCache[0]) && (packetData[1] == packetProgCache[1]) && (packetData[2] == packetProgCache[2]) && (packetData[3] == packetProgCache[3])) {
 		if (basicACKflag) return;
@@ -121,6 +141,31 @@ void dccProgDirectMode(uint8_t packetLength, uint8_t packetData[])
 		switch (packetProgCache[0] & 0x0C) {
 			case 0x08:
 				// Bit Manipulation
+				//basicACK();
+				if ((packetProgCache[2] & 0xE0) == 0xE0) {
+					BitPos = packetProgCache[2] & 0x07;
+					BitMask = 0x01 << BitPos;
+					cvCache = read_cv(cvAddr);
+					if (packetProgCache[2] & 0x10) {
+						// Write Bit
+						cvCache |= BitMask;
+						write_cv_byte(cvAddr, cvCache);
+						tinybasicACK();
+					} else {
+						// Read Bit
+						if (packetProgCache[2] & 0x08) {
+							// Bit is '1'
+							if (cvCache & BitMask) {
+								tinybasicACK();
+							}
+						} else {
+							// Bit is '0'
+							if (~cvCache & BitMask) {
+								tinybasicACK();
+							}
+						}
+					}
+				}
 				break;
 			case 0x04:
 				// Verify Byte
@@ -137,13 +182,16 @@ void dccProgDirectMode(uint8_t packetLength, uint8_t packetData[])
 				// Reserved
 				break;
 		}
+	
 	} else {
 		packetProgCache[0] = packetData[0];
 		packetProgCache[1] = packetData[1];
 		packetProgCache[2] = packetData[2];
 		packetProgCache[3] = packetData[3];
 		basicACKflag = 0;
+		tinybasicACKoff();
 	}
+	
 	
 }
 
