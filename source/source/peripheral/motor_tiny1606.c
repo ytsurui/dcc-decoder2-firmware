@@ -62,13 +62,13 @@ ISR(TCA0_OVF_vect)
 void initMotorModule(void)
 {
 	// PORT Configuration
-	PORTA.DIRCLR |= PIN1_bm;	// BEMF (AIN1)
-	PORTA.DIRSET |= PIN6_bm;	// FWD
-	PORTB.DIRSET |= PIN0_bm;	// PWM
-	PORTC.DIRSET |= PIN3_bm;	// REV
+	PORTA.DIRCLR = PIN1_bm;	// BEMF (AIN1)
+	PORTA.DIRSET = PIN6_bm;	// FWD
+	PORTB.DIRSET = PIN0_bm;	// PWM
+	PORTC.DIRSET = PIN3_bm;	// REV
 	
-	PORTA.OUTCLR |= PIN6_bm;
-	PORTC.OUTCLR |= PIN3_bm;
+	PORTA.OUTCLR = PIN6_bm;
+	PORTC.OUTCLR = PIN3_bm;
 #ifndef ATTINY806_FUNC
 	// Timer0 Configuration
 	TCA0.SINGLE.CTRLA = TCA_SINGLE_CLKSEL_DIV1_gc | TCA_SINGLE_ENABLE_bm;
@@ -104,15 +104,15 @@ void pwmSetDirection(uint8_t dir)
 	
 	if (dir == PWM_DIRECTION_FOR) {
 		// PWD
-		PORTC.OUTCLR |= PIN3_bm;
-		PORTA.OUTSET |= PIN6_bm;
+		PORTC.OUTCLR = PIN3_bm;
+		PORTA.OUTSET = PIN6_bm;
 	} else if (dir == PWM_DIRECTION_REV) {
 		// REV
-		PORTA.OUTCLR |= PIN6_bm;
-		PORTC.OUTSET |= PIN3_bm;
+		PORTA.OUTCLR = PIN6_bm;
+		PORTC.OUTSET = PIN3_bm;
 	} else {
-		PORTA.OUTCLR |= PIN6_bm;
-		PORTC.OUTCLR |= PIN3_bm;
+		PORTA.OUTCLR = PIN6_bm;
+		PORTC.OUTCLR = PIN3_bm;
 	}
 	
 }
@@ -410,17 +410,18 @@ void motorFuncDriver(uint8_t stat, uint8_t direction) {
 	TCA0.SINGLE.CTRLB = TCA_SINGLE_WGMODE_SINGLESLOPE_gc;
 	#endif
 		
+	
 	if (direction == PWM_DIRECTION_FOR) {
 		// PWD
-		PORTC.OUTCLR |= PIN3_bm;
-		PORTA.OUTSET |= PIN6_bm;
+		PORTC.OUTCLR = PIN3_bm;
+		PORTA.OUTSET = PIN6_bm;
 	} else if (direction == PWM_DIRECTION_REV) {
 		// REV
-		PORTA.OUTCLR |= PIN6_bm;
-		PORTC.OUTSET |= PIN3_bm;
+		PORTA.OUTCLR = PIN6_bm;
+		PORTC.OUTSET = PIN3_bm;
 	} else {
-		PORTA.OUTCLR |= PIN6_bm;
-		PORTC.OUTCLR |= PIN3_bm;
+		PORTA.OUTCLR = PIN6_bm;
+		PORTC.OUTCLR = PIN3_bm;
 	}
 	
 	if (stat) {
