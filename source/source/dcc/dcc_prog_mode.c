@@ -148,9 +148,17 @@ void dccProgDirectMode(uint8_t packetLength, uint8_t packetData[])
 					cvCache = read_cv(cvAddr);
 					if (packetProgCache[2] & 0x10) {
 						// Write Bit
-						cvCache |= BitMask;
-						write_cv_byte(cvAddr, cvCache);
-						tinybasicACK();
+						if (packetProgCache[2] & 0x08) {
+							// Write Bit is '1'
+							cvCache |= BitMask;
+							write_cv_byte(cvAddr, cvCache);
+							tinybasicACK();
+						} else {
+							// Write Bit is '0'
+							cvCache &= ~BitMask;
+							write_cv_byte(cvAddr, cvCache);
+							tinybasicACK();
+						}
 					} else {
 						// Read Bit
 						if (packetProgCache[2] & 0x08) {
