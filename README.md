@@ -10,6 +10,17 @@ NMRA規格の信号を受信して動作する、DCCデコーダーのファー�
 
 ---
 
+## ビルド環境
+
+Microchip Studio (旧Atmel Studio)と、Arduino IDEでのビルドに対応しています。
+
+  * Microchip Studioでビルドする場合： [source](source/)ディレクトリ内のMotorDecoder2.atsln
+  * Arduino IDEでビルドする場合: [arduino](arduino/)ディレクトリ内から対応するスケッチに含まれる.inoファイルを開く
+
+Arduinoを使用する場合は、[こちら](arduino/README.md)もお読みください。
+
+---
+
 ## 主要スペック (フル機能版)
   * モーターのコントロールに対応
   * モーター制御は14-Step、28-Step、128-Stepに対応
