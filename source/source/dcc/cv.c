@@ -384,12 +384,12 @@ void write_cv_byte(uint16_t CVnum, uint8_t data)
 			CV45 = data;
 			setFuncTable(CV45 & 0x1F);
 			break;
+		case 50:
+			CV50 = data;
+			break;
 #ifndef ATTINY806_FUNC
 		case 47:
 			CV47 = data;
-			break;
-		case 50:
-			CV50 = data;
 			break;
 		case 51:
 			CV51 = data;
