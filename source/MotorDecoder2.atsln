@@ -7,6 +7,8 @@ Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "MotorDecoder2", "MotorDecod
 EndProject
 Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "FuncDecoder2", "FuncDecoder2.cproj", "{DD425FA5-45AE-4090-A426-6F5293F96CD9}"
 EndProject
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "MotorDecoder1626", "MotorDecoder1626.cproj", "{AC8AC28C-47C9-4382-BA4E-908BA040C557}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|AVR = Debug|AVR
@@ -26,6 +28,12 @@ Global
 		{DD425FA5-45AE-4090-A426-6F5293F96CD9}.Func-Release|AVR.Build.0 = Func-Release|AVR
 		{DD425FA5-45AE-4090-A426-6F5293F96CD9}.Release|AVR.ActiveCfg = Func-Release|AVR
 		{DD425FA5-45AE-4090-A426-6F5293F96CD9}.Release|AVR.Build.0 = Func-Release|AVR
+		{AC8AC28C-47C9-4382-BA4E-908BA040C557}.Debug|AVR.ActiveCfg = Debug|AVR
+		{AC8AC28C-47C9-4382-BA4E-908BA040C557}.Debug|AVR.Build.0 = Debug|AVR
+		{AC8AC28C-47C9-4382-BA4E-908BA040C557}.Func-Release|AVR.ActiveCfg = 1626-Release|AVR
+		{AC8AC28C-47C9-4382-BA4E-908BA040C557}.Func-Release|AVR.Build.0 = 1626-Release|AVR
+		{AC8AC28C-47C9-4382-BA4E-908BA040C557}.Release|AVR.ActiveCfg = 1626-Release|AVR
+		{AC8AC28C-47C9-4382-BA4E-908BA040C557}.Release|AVR.Build.0 = 1626-Release|AVR
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

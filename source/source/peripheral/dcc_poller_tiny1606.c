@@ -286,7 +286,11 @@ void initDCCpoller(void)
 	// Max 6.55msec (1 / 5MHz * 32767, 1cycle=200ns)
 	//TCB0.INTCTRL = TCB_CAPT_bm;
 	//TCB0.CTRLA = TCB_CLKSEL_CLKDIV2_gc | TCB_ENABLE_bm | TCB_SYNCUPD_bm;
+#ifdef AVR2
+	TCB0.CTRLA = TCB_CLKSEL_DIV2_gc | TCB_ENABLE_bm;
+#else
 	TCB0.CTRLA = TCB_CLKSEL_CLKDIV2_gc | TCB_ENABLE_bm;
+#endif
 	TCB0.CCMP = 0xCFFF;
 	
 	//sei();
