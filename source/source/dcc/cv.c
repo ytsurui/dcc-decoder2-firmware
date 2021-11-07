@@ -96,6 +96,7 @@ void initialize_cv(void)
 	write_eeprom(50, CV50_DEFAULT);
 #ifndef ATTINY806_FUNC
 	write_eeprom(47, CV47_DEFAULT);
+	write_eeprom(48, CV48_DEFAULT);
 	write_eeprom(51, CV51_DEFAULT);
 	write_eeprom(52, CV52_DEFAULT);
 	write_eeprom(53, CV53_DEFAULT);
@@ -249,6 +250,7 @@ void load_cv(void)
 	CV52 = read_cv_raw(52);
 	CV53 = read_cv_raw(53);
 	CV54 = read_cv_raw(54);
+	CV48 = read_cv_raw(48);
 	
 	for (i = 0; i < 3; i++) {
 		CV55_57[i] = read_cv_raw(55 + i);
@@ -390,6 +392,9 @@ void write_cv_byte(uint16_t CVnum, uint8_t data)
 #ifndef ATTINY806_FUNC
 		case 47:
 			CV47 = data;
+			break;
+		case 48:
+			CV48 = data;
 			break;
 		case 51:
 			CV51 = data;
