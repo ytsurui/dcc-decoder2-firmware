@@ -166,6 +166,11 @@
     <br />Bit0-5: Timing, Bit6: Freq (0: 120Hz / 1: 60Hz), Bit7: Enable</td>
   </tr>
   <tr>
+    <td>48</td>
+    <td>7</td>
+    <td>Asymmetric DCCの内部回路しきい値</td>
+  </tr>
+  <tr>
     <td>50</td>
     <td>255</td>
     <td>アナログ走行時のファンクション有効化フラグ
