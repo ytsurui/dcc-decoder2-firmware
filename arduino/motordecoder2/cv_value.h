@@ -8,7 +8,7 @@
 
 #define CV_COUNT	255
 
-#define HARDWARE_NUM	0x01
+#define HARDWARE_NUM	0x02
 #define MANUFACTURENUM	0x0D
 
 #define CV1_DEFAULT		3		//7-Bit Addr
@@ -67,6 +67,7 @@
 #define CV52_DEFAULT	0		// Automatic Brake Auto-Reverse (0: Disabled / 1-255: Stop seconds)
 #define CV53_DEFAULT	10		// Automatic Brake Acceleration Rate
 #define CV54_DEFAULT	3		// Automatic Brake Deacceleration Rate
+#define CV48_DEFAULT	7		// ABC Detector Threshold Value
 
 #define CV55_DEFAULT	30		// BEMF PID Feedback Kp Raw Value
 #define CV56_DEFAULT	10		// BEMF PID Feedback Ki Raw Value
@@ -142,6 +143,7 @@ uint8_t CV51;		// Automatic Brake Ignore Function
 uint8_t CV52;		// Automatic Brake Auto-Reverse (0: Disabled / 1-255: Stop seconds)
 uint8_t CV53;		// Automatic Brake Acceleration Rate
 uint8_t CV54;		// Automatic Brake Deacceleration Rate
+uint8_t CV48;		// ABC Detector Threshold Value
 
 //uint8_t CV55;		// BEMF PID Feedback Kp Raw Value
 //uint8_t CV56;		// BEMF PID Feedback Ki Raw Value
