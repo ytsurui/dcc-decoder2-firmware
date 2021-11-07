@@ -360,7 +360,13 @@ void clock_receiver_train_ctrl(void)
 						}
 					}
 				} else if (Rate_counter >= CV54) {
+					
 					now_spd--;
+					
+					if (target_spd < now_spd) {
+						now_spd = target_spd;
+					}
+					
 					pwmSetSpeed(now_spd);
 					Rate_counter = 0;
 				} 

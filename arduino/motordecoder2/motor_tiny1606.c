@@ -30,7 +30,7 @@ uint8_t bemfReadFlag = 0;
 uint8_t bemfSaveSpdValue = 0;
 uint16_t bemfAdcValue = 0;
 
-uint8_t currentReadFlag = 0;
+//uint8_t currentReadFlag = 0;
 uint16_t currentAdcValue = 0;
 
 void pwmChangeFrequency(uint8_t freqCfg);
@@ -252,11 +252,12 @@ void HSclockReceiverMotorCtrl(void)
 		return;
 	}
 	
+	/*
 	if (currentReadFlag) {
 		if (currentReadFlag == 1) {
 			// Enable ADC
 			ADC0.MUXPOS = ADC_MUXPOS_AIN1_gc;
-			ADC0.COMMAND = ADC_STCONV_bm;;
+			ADC0.COMMAND = ADC_STCONV_bm;
 			currentReadFlag = 2;
 		} else if (currentReadFlag == 2) {
 			if ((ADC0.COMMAND & ADC_STCONV_bm) == 0) {
@@ -268,6 +269,7 @@ void HSclockReceiverMotorCtrl(void)
 			currentReadFlag = 0;
 		}
 	}
+	*/
 	
 	if ((CV60_64[0] & 0x7F) == 0) {
 		// Enable PWM Output
@@ -321,8 +323,8 @@ uint8_t get_speed_8bit(void)
 
 void captureCurrent(void)
 {
-	if (bemfReadFlag != 0) return;
-	if (currentReadFlag == 0) currentReadFlag = 1;
+	//if (bemfReadFlag != 0) return;
+	//if (currentReadFlag == 0) currentReadFlag = 1;
 }
 
 uint16_t getCurrentValue(void) {
@@ -332,7 +334,7 @@ uint16_t getCurrentValue(void) {
 void captureBEMF(void)
 {
 	if (~CV60_64[0] & 0x80) return;
-	if (currentReadFlag != 0) return;
+	//if (currentReadFlag != 0) return;
 	if (bemfReadFlag == 0) bemfReadFlag = 1;
 }
 
@@ -362,10 +364,7 @@ void calcMotorPID(void) {
 	Ki = CV55_57[1];	// CV56
 	Kd = CV55_57[2];	// CV57
 	
-	bemfADCfixedValue = (bemfAdcValue >> 1) * 255 / 
-	
-	
-	CV138;	// CV138 = 175: 2.96V ADC MAX to Scale 0-255
+	bemfADCfixedValue = (bemfAdcValue >> 1) * 255 / CV138;	// CV138 = 175: 2.96V ADC MAX to Scale 0-255
 	if (bemfADCfixedValue > 255) bemfADCfixedValue = 255;
 	
 	P = (int16_t)throttleSPDvalue - bemfADCfixedValue;
@@ -373,7 +372,8 @@ void calcMotorPID(void) {
 	D = (P - preP) / (dt * 10);
 	preP = P;
 	
-	calcValue = (Kp * P / 10) + (Ki * I / 10) + ((Kd * D) / 10);
+	calcValue = (int16_t)throttleSPDvalue + ((Kp * P / 10) + (Ki * I / 10) + ((Kd * D) / 10));
+	//calcValue = (Kp * P / 10) + (Ki * I / 10) + ((Kd * D) / 10);
 	//bemfSPDvalue = (uint8_t)((Kp * P) + (Ki * I));
 	if (calcValue > 255) {
 		bemfSPDvalue = 255;
@@ -383,6 +383,7 @@ void calcMotorPID(void) {
 		bemfSPDvalue = (uint8_t)calcValue;
 	}
 	
+	/*
 	if (bemfSPDvalue > throttleSPDvalue) {
 		if ((bemfSPDvalue - throttleSPDvalue) > 160) {
 			bemfSPDvalue = throttleSPDvalue + 160;
@@ -392,6 +393,7 @@ void calcMotorPID(void) {
 			bemfSPDvalue = throttleSPDvalue - 160;
 		} 
 	}
+	*/
 	
 }
 
