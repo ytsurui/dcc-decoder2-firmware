@@ -404,7 +404,8 @@ void calcMotorPID(void) {
 	D = (P - preP) / (dt * 10);
 	preP = P;
 	
-	calcValue = (Kp * P / 10) + (Ki * I / 10) + ((Kd * D) / 10);
+	calcValue = (int16_t)throttleSPDvalue + ((Kp * P / 10) + (Ki * I / 10) + ((Kd * D) / 10));
+	//calcValue = (Kp * P / 10) + (Ki * I / 10) + ((Kd * D) / 10);
 	//bemfSPDvalue = (uint8_t)((Kp * P) + (Ki * I));
 	if (calcValue > 255) {
 		bemfSPDvalue = 255;
@@ -414,6 +415,7 @@ void calcMotorPID(void) {
 		bemfSPDvalue = (uint8_t)calcValue;
 	}
 	
+	/*
 	if (bemfSPDvalue > throttleSPDvalue) {
 		if ((bemfSPDvalue - throttleSPDvalue) > 160) {
 			bemfSPDvalue = throttleSPDvalue + 160;
@@ -423,6 +425,7 @@ void calcMotorPID(void) {
 			bemfSPDvalue = throttleSPDvalue - 160;
 		} 
 	}
+	*/
 	
 }
 
