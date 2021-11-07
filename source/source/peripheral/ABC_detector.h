@@ -9,6 +9,9 @@
 
 void initABCpoller(void);
 
+uint8_t getABCrightCount(void);
+uint8_t getABCleftCount(void);
+
 void ABCcheckRight(void);
 void ABCcheckLeft(void);
 

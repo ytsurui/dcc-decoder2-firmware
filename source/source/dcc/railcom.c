@@ -14,6 +14,7 @@
 #include "cv_value.h"
 
 #include "../peripheral/motor.h"
+#include "../peripheral/ABC_detector.h"
 
 #include "../app/train_ctrl.h"
 
@@ -151,6 +152,24 @@ void railcomChannel1AddrSend() {
 			railcomSendMode = 1;
 		} else {
 			channel1Send(0x02, (uint8_t)(bemfReadTemp & 0x00FF));
+			railcomSendMode = 0;
+		}
+		return;
+	} else if (CV244 == 0x05) {
+		if (railcomSendMode == 0) {
+			channel1Send(0x01, 0x00);
+			railcomSendMode = 1;
+			} else {
+			channel1Send(0x02, getABCrightCount());
+			railcomSendMode = 0;
+		}
+		return;
+	} else if (CV244 == 0x06) {
+		if (railcomSendMode == 0) {
+			channel1Send(0x01, 0x00);
+			railcomSendMode = 1;
+		} else {
+			channel1Send(0x02, getABCleftCount());
 			railcomSendMode = 0;
 		}
 		return;
