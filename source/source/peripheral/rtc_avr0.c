@@ -27,6 +27,8 @@ ISR(RTC_PIT_vect) {
 #endif
 }
 
+
+// 16kHz Interrupt
 ISR(RTC_CNT_vect) {
 	RTC.INTFLAGS = RTC_CMP_bm | RTC_OVF_bm;
 	rtcFlag |= 0x02;
@@ -61,6 +63,7 @@ uint8_t chkRTCflag(void)
 	return (0);
 }
 
+// 16kHz Event Flag
 uint8_t chkHighSpeedRTCflag(void)
 {
 	if (rtcFlag & 0x02) {
