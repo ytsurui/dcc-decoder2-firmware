@@ -8,7 +8,7 @@
 
 #define CV_COUNT	255
 
-#define HARDWARE_NUM	0x02
+#define HARDWARE_NUM	0x03
 #define MANUFACTURENUM	0x0D
 
 #define CV1_DEFAULT		3		//7-Bit Addr
@@ -72,6 +72,9 @@
 #define CV55_DEFAULT	30		// BEMF PID Feedback Kp Raw Value
 #define CV56_DEFAULT	10		// BEMF PID Feedback Ki Raw Value
 #define CV57_DEFAULT	40		// BEMF PID Feedback Kd Raw Value
+//#define CV55_DEFAULT	17		// BEMF PID Feedback Kp Raw Value
+//#define CV56_DEFAULT	10		// BEMF PID Feedback Ki Raw Value
+//#define CV57_DEFAULT	2		// BEMF PID Feedback Kd Raw Value
 #define CV138_DEFAULT	100		// BEMF PID Feedback ADC Scaler Max Value
 
 #define CV58_DEFAULT	0x7F	// Analog Max Speed

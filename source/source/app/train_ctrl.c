@@ -231,6 +231,13 @@ void setspeed_128step(uint8_t direction, uint8_t speed)
 void setspeed_analog(uint8_t direction)
 {
 	spdAnalogFlag = 1;
+	if (readDirectionReverse()) {
+		if (direction == 2) {
+			direction = 1;
+		} else {
+			direction = 2;
+		}
+	}
 	setspeed(direction, CV58);
 }
 
