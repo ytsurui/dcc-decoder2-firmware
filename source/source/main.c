@@ -47,8 +47,8 @@ int main(void)
 	uint8_t dccRecvPacketCache[48];
 	uint8_t dccRecvPacketLength;
 #ifndef ATTINY806_FUNC
-	uint8_t changeFreqCount = 0;
-	uint8_t changeFreqCount2 = 0;
+	//uint8_t changeFreqCount = 0;
+	//uint8_t changeFreqCount2 = 0;
 	
 	uint8_t BEMFintervalCounter = 0;
 	
@@ -84,6 +84,12 @@ int main(void)
 		clearWDT();
 		dccPacketShifter(&dccRecvPacketLength, dccRecvPacketCache);
 		
+		#ifndef NO_RAILCOM
+		//if (checkRailcomSendChannel1()) {
+		//	railcomChannel1AddrSend();
+		//}
+		#endif
+		
 		if (dccRecvPacketLength) {
 			//packetTestRecv2(dccRecvPacketLength, dccRecvPacketCache);
 			dccPacketRouter(dccRecvPacketLength, dccRecvPacketCache);
@@ -114,11 +120,6 @@ int main(void)
 			} else if (ABCpollerFlag == 2) {
 				ABCcheckRight();
 				ABCcheckLeft();
-			}
-#endif
-#ifndef NO_RAILCOM
-			if (checkRailcomSendChannel1()) {
-				railcomChannel1AddrSend();
 			}
 #endif
 		
@@ -193,6 +194,7 @@ int main(void)
 							}
 						}
 						break;
+					/*
 					#ifndef ATTINY806_FUNC
 					case 15:
 						if (CV47 & 0x80) {
@@ -215,6 +217,7 @@ int main(void)
 						}
 						break;
 					#endif
+					*/
 				}
 				RTCclkFlag++;
 				if (RTCclkFlag >= 16) RTCclkFlag = 0;

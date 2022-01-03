@@ -42,6 +42,7 @@ void calcMotorPID(void);
 ISR(TCA0_OVF_vect)
 {
 	TCA0.SINGLE.INTFLAGS |= TCA_SINGLE_OVF_bm;	// Clear Interrupt Flag
+	return;
 		
 	if (pwmfreqChangeFlag) {
 		if (pwmfreqChangeFlag == PWM_FREQ_39KHZ) {
@@ -69,9 +70,10 @@ void initMotorModule(void)
 	
 	PORTA.OUTCLR = PIN6_bm;
 	PORTC.OUTCLR = PIN3_bm;
-#ifndef ATTINY806_FUNC
-	// Timer0 Configuration
+
+	// Timer0 Configuration (39.062kHz = 25.6us(1cycle) / 100ns/0.1us(1count)
 	TCA0.SINGLE.CTRLA = TCA_SINGLE_CLKSEL_DIV1_gc | TCA_SINGLE_ENABLE_bm;
+#ifndef ATTINY806_FUNC
 	TCA0.SINGLE.CTRLB = TCA_SINGLE_WGMODE_SINGLESLOPE_gc | TCA_SINGLE_CMP0_bm;
 	
 	TCA0.SINGLE.PER = 0xFF;
@@ -180,6 +182,7 @@ void pwmProgMode(uint8_t stat)
 
 #ifndef ATTINY806_FUNC
 
+/*
 void pwmChangeFrequency(uint8_t freqCfg)
 {
 	if (CV33_43[10] == 1) return;
@@ -194,6 +197,7 @@ void pwmChangeFrequency(uint8_t freqCfg)
 		TCA0.SINGLE.CTRLA = TCA_SINGLE_CLKSEL_DIV1024_gc | TCA_SINGLE_ENABLE_bm;
 	}
 }
+*/
 
 void pwmChangeFreqOperation(uint8_t freqCfg)
 {
