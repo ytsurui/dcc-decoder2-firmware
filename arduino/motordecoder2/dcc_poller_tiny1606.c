@@ -24,7 +24,7 @@ uint16_t dccTimerCounter = 0;
 uint16_t dccTimerCounterLeft = 0;
 
 uint8_t railcomCutoutFlag = 0;
-uint16_t railcomCutoutCounter = 0;
+//uint16_t railcomCutoutCounter = 0;
 
 uint8_t _preambleCount = 0;
 uint8_t _dccPulseReceiveBit;
@@ -57,7 +57,7 @@ uint8_t railcomSendFlag = 0;
 
 #define DCC_PULSE_LENGTH_RAILCOM_CUTOUT_MIN		130	// 26us
 #define DCC_PULSE_LENGTH_RAILCOM_CUTOUT_MAX		190	// 32us + 6us
-#define DCC_PULSE_LENGTH_RAILCOM_CHANNEL1_START	30	// 40us (32us + 8us)
+#define DCC_PULSE_LENGTH_RAILCOM_CHANNEL1_START	200	// 40us (32us + 8us)
 
 #define DCC_PULSE_LENGTH_RAILCOM_CHANNEL1_POLLER_START	60
 
@@ -89,22 +89,86 @@ uint8_t ABCpollerExecFlag = 0;
 void DCCpollerRightReset(void);
 void DCCpollerLeftReset(void);
 
-uint8_t railcomPollerFlag = 0;
-uint16_t railcomPollerCounter = 0;
+//uint8_t railcomPollerFlag = 0;
+//uint16_t railcomPollerCounter = 0;
 
-uint16_t railcomCutoutChannel1Timming = 0;
+//uint16_t railcomCutoutChannel1Timming = 0;
 
 /* DCC Pin Checker Funcs/Variables */
 uint8_t oldPortStatFlag = 0;
 uint8_t portChecker(void);
 void portReader(uint8_t chkFlag);
 
+//uint8_t railcomCounter2;
+
 
 ISR(PORTA_PORT_vect)
 {
 	PORTA.INTFLAGS |= (PIN2_bm | PIN4_bm);
-	portReader(portChecker());	
+	portReader(portChecker());
+	
+	#ifndef NO_RAILCOM
+	if (CV29 & 0x08) {
+		if ((~PORTA.IN & PIN2_bm) && (~PORTA.IN & PIN4_bm)) {
+			// Railcom?
+			if (railcomCutoutFlag == 0) {
+				railcomCutoutFlag = 1;
+			
+				if (TCA0.SINGLE.CNT < (0xFF - DCC_PULSE_LENGTH_RAILCOM_CHANNEL1_START)) {
+					TCA0.SINGLE.CMP2 = TCA0.SINGLE.CNT + DCC_PULSE_LENGTH_RAILCOM_CHANNEL1_START;
+				} else {
+					TCA0.SINGLE.CMP2 = DCC_PULSE_LENGTH_RAILCOM_CHANNEL1_START - (0xFF - TCA0.SINGLE.CNT);
+				}
+			
+				TCA0.SINGLE.INTCTRL |= TCA_SINGLE_CMP2_bm;
+			}
+		} else {
+			railcomCutoutFlag = 0;
+			TCA0.SINGLE.INTCTRL &= ~TCA_SINGLE_CMP2_bm;
+		}
+	}
+	#endif
+	
 }
+
+#ifndef NO_RAILCOM
+ISR(TCA0_CMP2_vect)
+{
+	TCA0.SINGLE.INTFLAGS |= TCA_SINGLE_CMP2_bm;
+	
+	if (railcomCutoutFlag == 1) {
+		railcomChannel1AddrSend();
+		railcomCutoutFlag = 2;
+		TCA0.SINGLE.INTCTRL &= ~TCA_SINGLE_CMP2_bm;
+	} else if (railcomCutoutFlag == 2) {
+		
+	}
+}
+#endif
+
+
+/*
+#ifndef NO_RAILCOM
+ISR(TCB0_INT_vect)
+{
+	TCB0.INTFLAGS |= TCB_CAPT_bm;
+	
+	if (railcomCutoutFlag == 1) {
+		
+		//if (newCounter >= DCC_PULSE_LENGTH_RAILCOM_CHANNEL1_START) {
+		if (railcomCounter2 >= DCC_PULSE_LENGTH_RAILCOM_CHANNEL1_START) {
+			railcomSendFlag |= 0x01;	// Channel1
+			railcomCutoutFlag = 2;
+		}
+		
+		railcomChannel1AddrSend();
+		railcomCutoutFlag = 2;
+	} else if (railcomCutoutFlag == 2) {
+		
+	}
+}
+#endif
+*/
 
 uint8_t portChecker(void) {
 	uint8_t chFlag = 0;
@@ -141,7 +205,7 @@ void portReader(uint8_t chkFlag) {
 			
 				if (dccTimerRightStart < TCB0.CNT) {
 					dccTimerCounter = TCB0.CNT - dccTimerRightStart;
-					} else {
+				} else {
 					dccTimerCounter = 0xD000 - dccTimerRightStart + TCB0.CNT;
 				}
 						
@@ -154,8 +218,8 @@ void portReader(uint8_t chkFlag) {
 			
 			}
 			railcomCutoutFlag = 0;
-			railcomPollerFlag = 0;
-			} else {
+			//railcomPollerFlag = 0;
+		} else {
 			// Start Right Count
 			if (oldInputPortStat & 0x01) {
 				oldInputPortStat &= ~0x01;
@@ -220,7 +284,7 @@ void portReader(uint8_t chkFlag) {
 				
 			}
 			railcomCutoutFlag = 0;
-			railcomPollerFlag = 0;
+			//railcomPollerFlag = 0;
 		} else {
 			if (oldInputPortStat & 0x02) {
 				oldInputPortStat &= ~0x02;
@@ -230,7 +294,7 @@ void portReader(uint8_t chkFlag) {
 	
 	}
 	
-
+	/*
 	if ((~PORTA.IN & PIN2_bm) && (~PORTA.IN & PIN4_bm)) {
 		if (railcomPollerFlag == 0) {
 			railcomPollerCounter = TCB0.CNT;
@@ -241,6 +305,7 @@ void portReader(uint8_t chkFlag) {
 		railcomPollerFlag = 0;
 		railcomPollerCounter = 0;
 	}
+	*/
 }
 
 
@@ -286,7 +351,11 @@ void initDCCpoller(void)
 	// Max 6.55msec (1 / 5MHz * 32767, 1cycle=200ns)
 	//TCB0.INTCTRL = TCB_CAPT_bm;
 	//TCB0.CTRLA = TCB_CLKSEL_CLKDIV2_gc | TCB_ENABLE_bm | TCB_SYNCUPD_bm;
+//#ifdef AVR2
+//	TCB0.CTRLA = TCB_CLKSEL_DIV2_gc | TCB_ENABLE_bm;
+//#else
 	TCB0.CTRLA = TCB_CLKSEL_CLKDIV2_gc | TCB_ENABLE_bm;
+//#endif
 	TCB0.CCMP = 0xCFFF;
 	
 	//sei();
@@ -306,18 +375,43 @@ uint8_t checkRailcomCutout(uint8_t lengthRight, uint8_t lengthLeft)
 //void dccPacketShifter(void)
 void dccPacketShifter(uint8_t* recvPacketLength, uint8_t* recvPacket)
 {
-	uint16_t newCounter;
+	//uint16_t newCounter;
 	
 	uint16_t dccTimerTemp;
 	//uint16_t dccTimerTemp2;
 	
-	uint16_t railcomPollerCalc;
+	//uint16_t railcomPollerCalc;
 	
 	//if (portChecker()) {
 	//	portReader();
 	//}
 	//portReader(portChecker());
 	
+	/*
+	if (CV29 & 0x08) {
+		
+		if (railcomCutoutFlag) {
+			
+			if (railcomCutoutCounter < TCB0.CNT) {
+				newCounter = TCB0.CNT - railcomCutoutCounter;
+			} else {
+				newCounter = 0xD000 + TCB0.CNT - railcomCutoutCounter;
+			}
+
+			if (railcomCutoutFlag == 1) {
+				//if (newCounter >= DCC_PULSE_LENGTH_RAILCOM_CHANNEL1_START) {
+				if (railcomCounter2 >= DCC_PULSE_LENGTH_RAILCOM_CHANNEL1_START) {
+					railcomSendFlag |= 0x01;	// Channel1
+					railcomCutoutFlag = 2;
+				}
+			} else if (railcomCutoutFlag == 2) {
+			
+			}
+		}
+	}
+	*/
+	
+	/*
 	if (CV29 & 0x08) {
 		
 		if (railcomCutoutFlag) {
@@ -377,6 +471,7 @@ void dccPacketShifter(uint8_t* recvPacketLength, uint8_t* recvPacket)
 		}
 		
 	}
+	*/
 	
 		
 	if ((dccTimerCounter == 0) && (dccTimerCounterLeft == 0)) return;

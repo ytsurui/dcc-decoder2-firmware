@@ -48,8 +48,8 @@ int main(void)
 	uint8_t dccRecvPacketLength;
 /*
 #ifndef ATTINY806_FUNC
-	uint8_t changeFreqCount = 0;
-	uint8_t changeFreqCount2 = 0;
+	//uint8_t changeFreqCount = 0;
+	//uint8_t changeFreqCount2 = 0;
 	
 	uint8_t BEMFintervalCounter = 0;
 	
@@ -107,8 +107,8 @@ int main(void)
 				dccRouterClockReceiver();
 			}
 		} else {
-
-/*			
+			
+/*
 #ifndef NO_ABC
 			ABCpollerFlag = ABCpollerReaderFlag();
 			if (ABCpollerFlag == 1) {
@@ -120,13 +120,7 @@ int main(void)
 			}
 #endif
 */
-/*
-#ifndef NO_RAILCOM
-			if (checkRailcomSendChannel1()) {
-				railcomChannel1AddrSend();
-			}
-#endif
-*/		
+		
 			if (chkHighSpeedRTCflag()) {
 				// 16kHz Event Timer
 //#ifndef ATTINY806_FUNC
