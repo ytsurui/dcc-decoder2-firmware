@@ -66,6 +66,11 @@ Arduinoを使用する場合は、[こちら](arduino/README.md)もお読みく�
     <td>フル機能版</td>
   </tr>
   <tr>
+    <td><a href="https://www.microchip.com/wwwproducts/en/ATtiny1616">ATtiny1616</a></td>
+    <td>フル機能版
+    <br>(ATtiny1606用バイナリをリビルドなしで書き込み可能)</td>
+  </tr>
+  <tr>
     <td><a href="https://www.microchip.com/wwwproducts/en/ATtiny1626">ATtiny1626</a></td>
     <td>ATtiny1626版
     <br>(ADC周りが異なるため、ATtiny1606版は動作不可)</td>

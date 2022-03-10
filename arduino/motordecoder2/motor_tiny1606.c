@@ -42,6 +42,7 @@ void calcMotorPID(void);
 ISR(TCA0_OVF_vect)
 {
 	TCA0.SINGLE.INTFLAGS |= TCA_SINGLE_OVF_bm;	// Clear Interrupt Flag
+	return;
 		
 	if (pwmfreqChangeFlag) {
 		if (pwmfreqChangeFlag == PWM_FREQ_39KHZ) {
@@ -69,9 +70,10 @@ void initMotorModule(void)
 	
 	PORTA.OUTCLR = PIN6_bm;
 	PORTC.OUTCLR = PIN3_bm;
-#ifndef ATTINY806_FUNC
-	// Timer0 Configuration
+
+	// Timer0 Configuration (39.062kHz = 25.6us(1cycle) / 100ns/0.1us(1count)
 	TCA0.SINGLE.CTRLA = TCA_SINGLE_CLKSEL_DIV1_gc | TCA_SINGLE_ENABLE_bm;
+#ifndef ATTINY806_FUNC
 	TCA0.SINGLE.CTRLB = TCA_SINGLE_WGMODE_SINGLESLOPE_gc | TCA_SINGLE_CMP0_bm;
 	
 	TCA0.SINGLE.PER = 0xFF;
@@ -80,6 +82,16 @@ void initMotorModule(void)
 	
 	PORTA.OUTSET |= PIN6_bm;
 	
+//#ifdef AVR2
+//	ADC0.CTRLA = ADC_ENABLE_bm;
+//	ADC0.CTRLB = ADC_PRESC_DIV32_gc;
+//	ADC0.CTRLC = ADC_REFSEL_4096MV_gc;
+//	ADC0.CTRLD = 0;
+//	
+//	ADC0.CTRLF = ADC_SAMPNUM_ACC2_gc;
+//	//ADC0.CTRLF = ADC_SAMPNUM_NONE_gc;
+//	ADC0.COMMAND = ADC_MODE_SINGLE_8BIT_gc;
+//#else
 	// VREF Configuration
 	VREF.CTRLA = VREF_ADC0REFSEL_4V34_gc;
 	
@@ -91,6 +103,8 @@ void initMotorModule(void)
 	ADC0.CTRLC = 0x40 | ADC_REFSEL_INTREF_gc | ADC_PRESC_DIV32_gc;
 	ADC0.CTRLD = ADC_INITDLY_DLY16_gc | ADC_ASDV_ASVOFF_gc;
 	ADC0.CTRLE = 0;
+//#endif
+
 #endif
 }
 
@@ -168,6 +182,7 @@ void pwmProgMode(uint8_t stat)
 
 #ifndef ATTINY806_FUNC
 
+/*
 void pwmChangeFrequency(uint8_t freqCfg)
 {
 	if (CV33_43[10] == 1) return;
@@ -182,6 +197,7 @@ void pwmChangeFrequency(uint8_t freqCfg)
 		TCA0.SINGLE.CTRLA = TCA_SINGLE_CLKSEL_DIV1024_gc | TCA_SINGLE_ENABLE_bm;
 	}
 }
+*/
 
 void pwmChangeFreqOperation(uint8_t freqCfg)
 {
@@ -225,8 +241,13 @@ void HSclockReceiverMotorCtrl(void)
 				TCA0.SINGLE.CMP0 = 0;
 			} else if (bemfReadFlag == 10) {
 				// Enable ADC
+//#ifdef AVR2
+//				ADC0.MUXPOS = ADC_MUXPOS_AIN1_gc;
+//				ADC0.COMMAND |= ADC_START_IMMEDIATE_gc;
+//#else
 				ADC0.MUXPOS = ADC_MUXPOS_AIN1_gc;
 				ADC0.COMMAND = ADC_STCONV_bm;
+//#endif
 				bemfReadFlag = 100;
 			}
 			bemfReadFlag++;
@@ -238,6 +259,16 @@ void HSclockReceiverMotorCtrl(void)
 			bemfReadFlag = 51;
 		*/
 		} else if (bemfReadFlag == 101) {
+//#ifdef AVR2
+//			if ((ADC0_COMMAND & 0x07) == 0) {
+//				// ADC Completed
+//				bemfAdcValue = ADC0.SAMPLE;
+//				bemfReadFlag = 0;
+//				TCA0.SINGLE.CMP0 = bemfSaveSpdValue;
+//				//calcBEMFoffsetValue();
+//				calcMotorPID();
+//			}
+//#else
 			if ((ADC0.COMMAND & ADC_STCONV_bm) == 0) {
 				// ADC Completed
 				bemfAdcValue = ADC0.RES;
@@ -246,6 +277,7 @@ void HSclockReceiverMotorCtrl(void)
 				//calcBEMFoffsetValue();
 				calcMotorPID();
 			}
+//#endif
 		}
 		
 		
@@ -363,8 +395,12 @@ void calcMotorPID(void) {
 	Kp = CV55_57[0];	// CV55
 	Ki = CV55_57[1];	// CV56
 	Kd = CV55_57[2];	// CV57
-	
+
+//#ifdef AVR2
+//	bemfADCfixedValue = bemfAdcValue * 255 / CV138;	// CV138 = 175: 2.96V ADC MAX to Scale 0-255
+//#else
 	bemfADCfixedValue = (bemfAdcValue >> 1) * 255 / CV138;	// CV138 = 175: 2.96V ADC MAX to Scale 0-255
+//#endif
 	if (bemfADCfixedValue > 255) bemfADCfixedValue = 255;
 	
 	P = (int16_t)throttleSPDvalue - bemfADCfixedValue;
