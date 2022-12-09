@@ -82,10 +82,11 @@
     <td>14</td>
     <td>デコーダ基本設定</td>
   </tr>
-    <tr>
+  <tr>
     <td>33</td>
     <td>4</td>
-    <td>ヘッドライト減光 (Default: F4)</td>
+    <td>Bit0-Bit6: ヘッドライト減光 ファンクション番号 (Default: F4)
+    <br />Bit7 = 1: 手動減光モード</td>
   </tr>
   <tr>
     <td>34</td>
