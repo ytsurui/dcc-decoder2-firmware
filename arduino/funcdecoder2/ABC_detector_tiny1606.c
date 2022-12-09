@@ -5,6 +5,7 @@
  *  Author: Y.Tsurui
  */ 
 
+/*
 #ifndef NO_ABC
 
 #include <avr/io.h>
@@ -89,7 +90,7 @@ uint8_t setABCsumLeft(uint8_t value) {
 }
 
 
-
+/*
 void ABCcheckRight(void) {
 	if (PORTA.IN & PIN5_bm) {	// ABC+
 		ABCcountHigh_Right++;
@@ -121,7 +122,8 @@ void ABCcheckRight(void) {
 	}
 	
 }
-
+*/
+/*
 void ABCcheckLeft(void) {
 	if (PORTC.IN & PIN2_bm) {	// ABC-
 		ABCcountHigh_Left++;	
@@ -153,7 +155,7 @@ void ABCcheckLeft(void) {
 	}
 	
 }
-
+*/
 
 /*
 void ABCclkReceiver(void) {
@@ -207,7 +209,6 @@ void ABCclkReceiver(void) {
 	
 	
 }
-*/
 
 uint8_t getABCstatus(void)
 {
@@ -216,7 +217,6 @@ uint8_t getABCstatus(void)
 	}
 	return (ABCstatus2);
 }
-
 
 void ABCmsEvent()
 {
@@ -259,3 +259,4 @@ void ABCmsEvent()
 }
 
 #endif
+*/
