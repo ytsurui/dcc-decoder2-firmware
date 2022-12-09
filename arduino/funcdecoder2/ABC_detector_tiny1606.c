@@ -23,7 +23,20 @@ uint8_t gCount = 0;
 uint8_t ABCRightCount = 0;
 uint8_t ABCLeftCount = 0;
 
+uint8_t ABCRightCountTH = 0;
+uint8_t ABCLeftCountTH = 0;
+
+uint8_t ABCsumRight[4];
+uint8_t ABCsumLeft[4];
+
+uint8_t ABCsumRightPos = 0;
+uint8_t ABCsumLeftPos = 0;
+
 uint8_t ABCstatus = 0;
+uint8_t ABCstatus2 = 0;
+
+uint8_t ABCleftBackCount = 0;
+uint8_t ABCrightBackCount = 0;
 
 #define ABC_ENABLE_THRESHOLD	10
 
@@ -36,6 +49,46 @@ void initABCpoller(void) {
 	PORTC.PIN2CTRL |= PORT_PULLUPEN_bm;
 }
 
+uint8_t getABCrightCount(void) {
+	return ABCRightCountTH;
+}
+
+uint8_t getABCleftCount(void) {
+	return ABCLeftCountTH;
+}
+
+
+uint8_t setABCsumRight(uint8_t value) {
+	uint16_t backValue = 0;
+	uint8_t i;
+	
+	ABCsumRight[ABCsumRightPos] = value;
+	ABCsumRightPos++;
+	if (ABCsumRightPos >= 4) ABCsumRightPos = 0;
+	
+	for (i = 0; i < 4; i++) {
+		backValue += ABCsumRight[i];
+	}
+	
+	return (uint8_t)(backValue >> 4);
+}
+
+uint8_t setABCsumLeft(uint8_t value) {
+	uint16_t backValue = 0;
+	uint8_t i;
+	
+	ABCsumLeft[ABCsumLeftPos] = value;
+	ABCsumLeftPos++;
+	if (ABCsumLeftPos >= 4) ABCsumLeftPos = 0;
+	
+	for (i = 0; i < 4; i++) {
+		backValue += ABCsumLeft[i];
+	}
+	
+	return (uint8_t)(backValue >> 4);
+}
+
+
 
 void ABCcheckRight(void) {
 	if (PORTA.IN & PIN5_bm) {	// ABC+
@@ -46,11 +99,15 @@ void ABCcheckRight(void) {
 	ABCRightCount++;
 	
 	if (ABCRightCount >= 250) {
+		//ABCRightCountTH = ABCcountLow_Right;
+		ABCRightCountTH = setABCsumRight(ABCcountLow_Right);
 		ABCRightCount = 0;
 		
 		if (CV27 & 0x01) {
 			//if (ABCcountHigh_Right > ABCcountLow_Right) {
-			if (ABCcountLow_Right < ABC_ENABLE_THRESHOLD) {
+			//if (ABCcountLow_Right < ABC_ENABLE_THRESHOLD) {
+			//if (ABCRightCountTH < ABC_ENABLE_THRESHOLD) {
+			if (ABCRightCountTH < CV48) {
 				ABCstatus |= ABC_STAT_EN_FOR;
 			} else {
 				ABCstatus &= ~ABC_STAT_EN_FOR;
@@ -74,11 +131,15 @@ void ABCcheckLeft(void) {
 	ABCLeftCount++;
 	
 	if (ABCLeftCount >= 250) {
+		//ABCLeftCountTH = ABCcountLow_Left;
+		ABCLeftCountTH = setABCsumLeft(ABCcountLow_Left);
 		ABCLeftCount = 0;
 		
 		if (CV27 & 0x02) {
 			//if (ABCcountHigh_Left > ABCcountLow_Left) {
-			if (ABCcountLow_Left < ABC_ENABLE_THRESHOLD) {
+			//if (ABCcountLow_Left < ABC_ENABLE_THRESHOLD) {
+			//if (ABCLeftCountTH < ABC_ENABLE_THRESHOLD) {
+			if (ABCLeftCountTH < CV48) {
 				ABCstatus |= ABC_STAT_EN_REV;
 			} else {
 				ABCstatus &= ~ABC_STAT_EN_REV;
@@ -153,7 +214,48 @@ uint8_t getABCstatus(void)
 	if (ignoreABCstat()) {
 		return (0);
 	}
-	return (ABCstatus);
+	return (ABCstatus2);
+}
+
+
+void ABCmsEvent()
+{
+	if (ABCstatus2 & ABC_STAT_EN_FOR) {
+		// right
+		if (~ABCstatus & ABC_STAT_EN_FOR) {
+			ABCrightBackCount++;
+			if (ABCrightBackCount > CV148) {
+				ABCrightBackCount = 0;
+				ABCstatus2 &= ~ABC_STAT_EN_FOR;
+			}
+		} else {
+			ABCrightBackCount = 0;
+		}
+	} else {
+		if (ABCstatus & ABC_STAT_EN_FOR) {
+			// �����ɔ��f
+			ABCstatus2 |= ABC_STAT_EN_FOR;
+		}
+		ABCrightBackCount = 0;
+	}
+	
+	if (ABCstatus2 & ABC_STAT_EN_REV) {
+		// left
+		if (~ABCstatus & ABC_STAT_EN_REV) {
+			ABCleftBackCount++;
+			if (ABCleftBackCount > CV148) {
+				ABCleftBackCount = 0;
+				ABCstatus2 &= ~ABC_STAT_EN_REV;
+			}
+		} else {
+			ABCleftBackCount = 0;
+		}
+	} else {
+		if (ABCstatus & ABC_STAT_EN_REV) {
+			ABCstatus2 |= ABC_STAT_EN_REV;
+		}
+		ABCleftBackCount = 0;
+	}
 }
 
 #endif

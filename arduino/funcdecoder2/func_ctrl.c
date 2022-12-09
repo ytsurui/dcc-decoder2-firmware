@@ -362,7 +362,7 @@ void funcSet(uint8_t funcNum, uint8_t stat, uint8_t direction)
 	
 	funcSetDirection = direction;
 	
-	funcSetVirtual(0, CV33_43[0], funcNum, stat);			// Headlight Dimming
+	funcSetVirtual(0, (CV33_43[0] & 0x7F), funcNum, stat);			// Headlight Dimming
 	funcSetVirtual(1, CV33_43[1], funcNum, stat);			// Taillight Yard Operation
 	funcSetPort(0, CV33_43[2], funcNum, stat, direction);	// Func1
 	funcSetPort(1, CV33_43[3], funcNum, stat, direction);	// Func2
@@ -374,9 +374,9 @@ void funcSet(uint8_t funcNum, uint8_t stat, uint8_t direction)
 	funcSetPortMotor(CV33_43[9], funcNum, stat, direction);	// Func8
 	funcSetVirtual(3, CV44, funcNum, stat);					// Headlight Always On Backward
 	funcSetVirtual(2, CV45, funcNum, stat);					// Headlight Always On Forward
-//#ifndef ATTINY806_FUNC
-//	funcSetVirtual(6, CV51, funcNum, stat);					// Automatic Brake Ignore Function
-//#endif
+#ifndef ATTINY806_FUNC
+	funcSetVirtual(6, CV51, funcNum, stat);					// Automatic Brake Ignore Function
+#endif
 	funcSetVirtual(7, CV60_64[3], funcNum, stat);			// Slow Speed Mode for Yard Operation (CV63)
 }
 
@@ -504,10 +504,15 @@ void funcSetPort2(uint8_t funcPort, uint8_t count)
 			illuminateValue = funcEffect(funcStat, cvType2, count, &funcStatusCount[funcPort], &ctrlOverride, &HSfuncValue[funcPort]);
 		} else {
 			//if (readSpdFlag()) {
-			if (get_speed_8bit()) {
+			if (CV33_43[0] & 0x80) {
+				// Manual Dimming Mode
 				illuminateValue = funcEffect(funcStat, cvType, count, &funcStatusCount[funcPort], &ctrlOverride, &HSfuncValue[funcPort]);
 			} else {
-				illuminateValue = funcEffect(funcStat, cvType2, count, &funcStatusCount[funcPort], &ctrlOverride, &HSfuncValue[funcPort]);
+				if (get_speed_8bit()) {
+					illuminateValue = funcEffect(funcStat, cvType, count, &funcStatusCount[funcPort], &ctrlOverride, &HSfuncValue[funcPort]);
+				} else {
+					illuminateValue = funcEffect(funcStat, cvType2, count, &funcStatusCount[funcPort], &ctrlOverride, &HSfuncValue[funcPort]);
+				}
 			}
 		}
 	} else if ((cvType & 0x0F) == 0x02) {

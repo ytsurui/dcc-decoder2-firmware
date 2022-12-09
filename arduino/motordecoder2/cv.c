@@ -126,6 +126,7 @@ void initialize_cv(void)
 	write_eeprom(131, CV131_DEFAULT);
 	write_eeprom(138, CV138_DEFAULT);
 	write_eeprom(140, CV140_DEFAULT);
+	write_eeprom(148, CV148_DEFAULT);
 	write_eeprom(244, CV244_DEFAULT);
 
 	initialize_speed_table();
@@ -276,7 +277,7 @@ void load_cv(void)
 	setFuncTable(CV60_64[3] & 0x1F);
 #ifndef ATTINY806_FUNC
 	CV140 = read_cv_raw(140);	// Motor Start Delay Time (1/10sec)
-
+	CV148 = read_cv_raw(148);	// ABC status-back wait time
 	CV244 = read_cv_raw(244);
 #endif	
 	/*
@@ -519,6 +520,9 @@ void write_cv_byte(uint16_t CVnum, uint8_t data)
 			break;
 		case 244:
 			CV244 = data;
+			break;
+		case 148:
+			CV148 = data;
 			break;
 #endif
 	}

@@ -54,6 +54,8 @@ int main(void)
 	uint8_t BEMFintervalCounter = 0;
 	
 	uint8_t ABCpollerFlag = 0;
+	
+	uint8_t funcRunFlag;
 #endif
 */
 	
@@ -107,8 +109,8 @@ int main(void)
 				dccRouterClockReceiver();
 			}
 		} else {
-			
-/*
+
+/*			
 #ifndef NO_ABC
 			ABCpollerFlag = ABCpollerReaderFlag();
 			if (ABCpollerFlag == 1) {
@@ -119,8 +121,8 @@ int main(void)
 				ABCcheckLeft();
 			}
 #endif
-*/
-		
+*/	
+
 			if (chkHighSpeedRTCflag()) {
 				// 16kHz Event Timer
 //#ifndef ATTINY806_FUNC
@@ -164,7 +166,16 @@ int main(void)
 #endif
 */
 					case 4:
+//#ifndef ATTINY806_FUNC
+//						if (funcRunFlag) {
+//							funcRunFlag = 0;
+//						} else {
+//							clockReceiverFuncCtrl();
+//							funcRunFlag = 1;
+//						}
+//#else
 						clockReceiverFuncCtrl();
+//#endif
 						break;
 					case 5:
 					case 6:
@@ -174,7 +185,13 @@ int main(void)
 					case 10:
 					case 11:
 					case 12:
+//#ifndef ATTINY806_FUNC
+//						if (funcRunFlag) {
+//							clockReceiverFuncCtrlSub(RTCclkFlag - 5);
+//						}
+//#else
 						clockReceiverFuncCtrlSub(RTCclkFlag - 5);
+//#endif
 						break;
 					case 13:
 						dccRouterClockReceiver();
@@ -196,6 +213,11 @@ int main(void)
 							}
 						}
 						break;
+//#ifndef NO_ABC
+//					case 15:
+//						ABCmsEvent();
+//						break;
+//#endif
 					/*
 					#ifndef ATTINY806_FUNC
 					case 15:
