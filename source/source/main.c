@@ -194,6 +194,11 @@ int main(void)
 							}
 						}
 						break;
+#ifndef NO_ABC
+					case 15:
+						ABCmsEvent();
+						break;
+#endif
 					/*
 					#ifndef ATTINY806_FUNC
 					case 15:
