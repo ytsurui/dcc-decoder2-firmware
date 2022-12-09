@@ -30,6 +30,7 @@ void write_eeprom(uint8_t addr, uint8_t data)
 	//eeprom_write_byte(val + addr, data);
 	eeprom_update_byte(val + addr, data);
 }
+
 /*
 #ifndef ATTINY806_FUNC
 void initialize_speed_table(void)
@@ -98,6 +99,7 @@ void initialize_cv(void)
 /*
 #ifndef ATTINY806_FUNC
 	write_eeprom(47, CV47_DEFAULT);
+	write_eeprom(48, CV48_DEFAULT);
 	write_eeprom(51, CV51_DEFAULT);
 	write_eeprom(52, CV52_DEFAULT);
 	write_eeprom(53, CV53_DEFAULT);
@@ -129,6 +131,7 @@ void initialize_cv(void)
 	write_eeprom(131, CV131_DEFAULT);
 	write_eeprom(138, CV138_DEFAULT);
 	write_eeprom(140, CV140_DEFAULT);
+	write_eeprom(148, CV148_DEFAULT);
 	write_eeprom(244, CV244_DEFAULT);
 
 	initialize_speed_table();
@@ -228,7 +231,7 @@ void load_cv(void)
 		CV67_94[i] = read_cv_raw(67 + i);
 	}
 #endif
-*/		
+*/
 	for (i = 0; i < 11; i++) {
 		CV33_43[i] = read_cv_raw(33 + i);
 		setFuncTable(CV33_43[i] & 0x1F);
@@ -241,7 +244,7 @@ void load_cv(void)
 	
 	CV50 = read_cv_raw(50);
 
-/*
+/*	
 #ifndef ATTINY806_FUNC
 	CV131 = read_cv_raw(131);
 	
@@ -254,6 +257,7 @@ void load_cv(void)
 	CV52 = read_cv_raw(52);
 	CV53 = read_cv_raw(53);
 	CV54 = read_cv_raw(54);
+	CV48 = read_cv_raw(48);
 	
 	for (i = 0; i < 3; i++) {
 		CV55_57[i] = read_cv_raw(55 + i);
@@ -264,7 +268,7 @@ void load_cv(void)
 	CV58 = read_cv_raw(58);
 	CV59 = read_cv_raw(59);
 #endif
-*/
+*/	
 	/*
 	CV60 = read_cv_raw(60);
 	CV61 = read_cv_raw(61);
@@ -280,7 +284,7 @@ void load_cv(void)
 /*
 #ifndef ATTINY806_FUNC
 	CV140 = read_cv_raw(140);	// Motor Start Delay Time (1/10sec)
-
+	CV148 = read_cv_raw(148);	// ABC status-back wait time
 	CV244 = read_cv_raw(244);
 #endif
 */
@@ -398,6 +402,9 @@ void write_cv_byte(uint16_t CVnum, uint8_t data)
 #ifndef ATTINY806_FUNC
 		case 47:
 			CV47 = data;
+			break;
+		case 48:
+			CV48 = data;
 			break;
 		case 51:
 			CV51 = data;
@@ -526,6 +533,9 @@ void write_cv_byte(uint16_t CVnum, uint8_t data)
 			break;
 		case 244:
 			CV244 = data;
+			break;
+		case 148:
+			CV148 = data;
 			break;
 #endif
 */

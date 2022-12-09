@@ -8,6 +8,10 @@
 #ifndef NO_ABC
 
 void initABCpoller(void);
+void ABCmsEvent(void);
+
+uint8_t getABCrightCount(void);
+uint8_t getABCleftCount(void);
 
 void ABCcheckRight(void);
 void ABCcheckLeft(void);

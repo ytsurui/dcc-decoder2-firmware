@@ -8,7 +8,7 @@
 
 #define CV_COUNT	255
 
-#define HARDWARE_NUM	0x03
+#define HARDWARE_NUM	0x05	// Version 1.0.5
 #define MANUFACTURENUM	0x0D
 
 #define CV1_DEFAULT		3		//7-Bit Addr
@@ -68,6 +68,7 @@
 #define CV53_DEFAULT	10		// Automatic Brake Acceleration Rate
 #define CV54_DEFAULT	3		// Automatic Brake Deacceleration Rate
 #define CV48_DEFAULT	7		// ABC Detector Threshold Value
+#define CV148_DEFAULT	3		// ABC status-back wait count
 
 #define CV55_DEFAULT	30		// BEMF PID Feedback Kp Raw Value
 #define CV56_DEFAULT	10		// BEMF PID Feedback Ki Raw Value
@@ -150,6 +151,7 @@ uint8_t CV52;		// Automatic Brake Auto-Reverse (0: Disabled / 1-255: Stop second
 uint8_t CV53;		// Automatic Brake Acceleration Rate
 uint8_t CV54;		// Automatic Brake Deacceleration Rate
 uint8_t CV48;		// ABC Detector Threshold Value
+uint8_t CV148;		// ABC status-back wait count
 
 //uint8_t CV55;		// BEMF PID Feedback Kp Raw Value
 //uint8_t CV56;		// BEMF PID Feedback Ki Raw Value
@@ -185,6 +187,7 @@ uint8_t CV112_CV122[11];
 uint8_t CV131;				// Yard Mode Max Speed
 
 uint8_t CV140;      // Motor Start Delay Time (1/10sec)
+
 
 uint8_t CV244;      // Railcom Debug-Output (0: Normal / 1: BEMF ADC)
 #endif

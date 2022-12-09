@@ -508,7 +508,7 @@ void dccPacketShifter(uint8_t* recvPacketLength, uint8_t* recvPacket)
 		// bit is 0
 		_dccPulseReceiveBit = 0;
 		
-		if (_preambleCount >= 14) {
+		if (_preambleCount >= 11) {
 			// Packet Start Bit
 			_dccPulseBitCount = 1;
 			_dccPacketData[0] = 0;

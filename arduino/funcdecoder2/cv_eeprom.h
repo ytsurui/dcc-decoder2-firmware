@@ -58,7 +58,7 @@ uint8_t __attribute__((section(".eeprom"))) val[] =
 	/*  45 */	CV45_DEFAULT,	// Headlight Always On Function
 	/*  46 */	0x00,
 	/*  47 */	CV47_DEFAULT,	// PWM KickStart Configuration
-	/*  48 */	0x00,
+	/*  48 */	CV48_DEFAULT,	// ABC Threshold
 	/*  49 */	0x00,
 	/*  50 */	CV50_DEFAULT,	// Analog Function Enable Flag (bit7-0: Func8-Func1 Enable)
 	/*  51 */	CV51_DEFAULT,	// Automatic Brake Ignore Function (Default: F5)
