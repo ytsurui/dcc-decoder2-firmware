@@ -33,6 +33,10 @@ uint8_t ABCsumRightPos = 0;
 uint8_t ABCsumLeftPos = 0;
 
 uint8_t ABCstatus = 0;
+uint8_t ABCstatus2 = 0;
+
+uint8_t ABCleftBackCount = 0;
+uint8_t ABCrightBackCount = 0;
 
 #define ABC_ENABLE_THRESHOLD	10
 
@@ -210,7 +214,48 @@ uint8_t getABCstatus(void)
 	if (ignoreABCstat()) {
 		return (0);
 	}
-	return (ABCstatus);
+	return (ABCstatus2);
+}
+
+
+void ABCmsEvent()
+{
+	if (ABCstatus2 & ABC_STAT_EN_FOR) {
+		// right
+		if (~ABCstatus & ABC_STAT_EN_FOR) {
+			ABCrightBackCount++;
+			if (ABCrightBackCount > CV148) {
+				ABCrightBackCount = 0;
+				ABCstatus2 &= ~ABC_STAT_EN_FOR;
+			}
+		} else {
+			ABCrightBackCount = 0;
+		}
+	} else {
+		if (ABCstatus & ABC_STAT_EN_FOR) {
+			// ‘¦À‚É”½‰f
+			ABCstatus2 |= ABC_STAT_EN_FOR;
+		}
+		ABCrightBackCount = 0;
+	}
+	
+	if (ABCstatus2 & ABC_STAT_EN_REV) {
+		// left
+		if (~ABCstatus & ABC_STAT_EN_REV) {
+			ABCleftBackCount++;
+			if (ABCleftBackCount > CV148) {
+				ABCleftBackCount = 0;
+				ABCstatus2 &= ~ABC_STAT_EN_REV;
+			}
+		} else {
+			ABCleftBackCount = 0;
+		}
+	} else {
+		if (ABCstatus & ABC_STAT_EN_REV) {
+			ABCstatus2 |= ABC_STAT_EN_REV;
+		}
+		ABCleftBackCount = 0;
+	}
 }
 
 #endif

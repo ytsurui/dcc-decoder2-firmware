@@ -159,7 +159,7 @@ uint8_t __attribute__((section(".eeprom"))) val[] =
 	/* 145 */	0x00,
 	/* 146 */	0x00,
 	/* 147 */	0x00,
-	/* 148 */	0x00,
+	/* 148 */	CV148_DEFAULT,	// ABC Status-Back wait count
 	/* 149 */	0x00,
 	/* 150 */	0x00,
 	/* 151 */	0x00,
