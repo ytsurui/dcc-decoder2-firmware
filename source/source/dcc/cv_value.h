@@ -8,7 +8,7 @@
 
 #define CV_COUNT	255
 
-#define HARDWARE_NUM	0x05	// Version 1.0.5
+#define HARDWARE_NUM	0x06	// Version 1.0.6
 #define MANUFACTURENUM	0x0D
 
 #define CV1_DEFAULT		3		//7-Bit Addr

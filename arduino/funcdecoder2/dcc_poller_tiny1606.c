@@ -18,10 +18,10 @@ uint8_t portTestFlag = 0;
 
 uint8_t oldInputPortStat = 0;		
 
-uint16_t dccTimerRightStart = 0;
-uint16_t dccTimerLeftStart = 0;
-uint16_t dccTimerCounter = 0;
-uint16_t dccTimerCounterLeft = 0;
+volatile uint16_t dccTimerRightStart = 0;
+volatile uint16_t dccTimerLeftStart = 0;
+volatile uint16_t dccTimerCounter = 0;
+volatile uint16_t dccTimerCounterLeft = 0;
 
 uint8_t railcomCutoutFlag = 0;
 //uint16_t railcomCutoutCounter = 0;
@@ -375,209 +375,100 @@ uint8_t checkRailcomCutout(uint8_t lengthRight, uint8_t lengthLeft)
 //void dccPacketShifter(void)
 void dccPacketShifter(uint8_t* recvPacketLength, uint8_t* recvPacket)
 {
-	//uint16_t newCounter;
-	
 	uint16_t dccTimerTemp;
-	//uint16_t dccTimerTemp2;
-	
-	//uint16_t railcomPollerCalc;
-	
-	//if (portChecker()) {
-	//	portReader();
-	//}
-	//portReader(portChecker());
-	
-	/*
-	if (CV29 & 0x08) {
-		
-		if (railcomCutoutFlag) {
-			
-			if (railcomCutoutCounter < TCB0.CNT) {
-				newCounter = TCB0.CNT - railcomCutoutCounter;
-			} else {
-				newCounter = 0xD000 + TCB0.CNT - railcomCutoutCounter;
-			}
+	uint8_t bit;
 
-			if (railcomCutoutFlag == 1) {
-				//if (newCounter >= DCC_PULSE_LENGTH_RAILCOM_CHANNEL1_START) {
-				if (railcomCounter2 >= DCC_PULSE_LENGTH_RAILCOM_CHANNEL1_START) {
-					railcomSendFlag |= 0x01;	// Channel1
-					railcomCutoutFlag = 2;
-				}
-			} else if (railcomCutoutFlag == 2) {
-			
-			}
-		}
+	// デフォルトは「受信なし」
+	(*recvPacketLength) = 0;
+
+	// ISRと共有の16bitカウンタを原子的に取り出す
+	cli();
+	if ((dccTimerCounter == 0) && (dccTimerCounterLeft == 0)) {
+		sei();
+		return;
 	}
-	*/
-	
-	/*
-	if (CV29 & 0x08) {
-		
-		if (railcomCutoutFlag) {
-			if ((PORTA.IN & PIN2_bm) || (PORTA.IN & PIN4_bm)) {
-				railcomCutoutFlag = 0;
-				railcomPollerFlag = 0;
-				railcomPollerCounter = 0;
-			} else {
-			
-				if (railcomCutoutCounter < TCB0.CNT) {
-					newCounter = TCB0.CNT - railcomCutoutCounter;
-				} else {
-					newCounter = 0xD000 + TCB0.CNT - railcomCutoutCounter;
-				}
-		
-				//if (newCounter >= DCC_PULSE_LENGTH_RAILCOM_CHANNEL1_START) {
-				if (railcomCutoutFlag == 1) {
-					if (newCounter >= railcomCutoutChannel1Timming) {
-						railcomSendFlag |= 0x01;	// Channel1
-						railcomCutoutFlag = 2;
-					}
-				} else if (railcomCutoutFlag == 2) {
-				
-				}
-			
-			}
-			
-		} else if (railcomPollerFlag) {
-			if ((PORTA.IN & PIN2_bm) || (PORTA.IN & PIN4_bm)) {
-				railcomCutoutFlag = 0;
-				railcomPollerFlag = 0;
-				railcomPollerCounter = 0;
-			} else {
-			
-				if (railcomPollerCounter < TCB0.CNT) {
-					railcomPollerCalc = TCB0.CNT - railcomPollerCounter;
-				} else {
-					railcomPollerCalc = 0xD000 - railcomPollerCounter + TCB0.CNT;
-				}
-		
-				if (railcomPollerCalc > DCC_PULSE_LENGTH_RAILCOM_CUTOUT_MIN) {
-					if (railcomCutoutFlag == 0) {
-						railcomCutoutFlag = 1;
-						railcomCutoutCounter = TCB0.CNT;
-						railcomCutoutChannel1Timming = DCC_PULSE_LENGTH_RAILCOM_CHANNEL1_POLLER_START;
-					}
-					railcomPollerFlag = 0;
-					return;
-				}
-			
-			}
-		} else if ((~PORTA.IN & PIN2_bm) && (~PORTA.IN & PIN4_bm)) {
-			if (railcomPollerFlag == 0) {
-				railcomPollerCounter = TCB0.CNT;
-				railcomPollerFlag = 1;
-			}
-		}
-		
-	}
-	*/
-	
-		
-	if ((dccTimerCounter == 0) && (dccTimerCounterLeft == 0)) return;
 	dccTimerTemp = dccTimerCounter;
-	//dccTimerTemp2 = dccTimerCounterLeft;
 	dccTimerCounter = 0;
 	dccTimerCounterLeft = 0;
-	
-	//PORTA.OUTTGL = PIN3_bm;
-	/*
-	if (CV29 & 0x08) {
-		if (checkRailcomCutout(dccTimerTemp, dccTimerTemp2)) {
-			if (railcomCutoutFlag == 0) {
-				railcomCutoutFlag = 1;
-				railcomCutoutCounter = TCB0.CNT;
-				railcomCutoutChannel1Timming = DCC_PULSE_LENGTH_RAILCOM_CHANNEL1_START;
-			}
-		
-			return;
-		}
-	}
-	*/
-	
-	
-	
-	if ((dccTimerTemp > DCC_PULSE_LENGTH_ONE_MIN) && (dccTimerTemp < DCC_PULSE_LENGTH_ONE_MAX)) {
-		// bit is 1
-		_dccPulseReceiveBit = 1;
-		_preambleCount++;
-		
-		_dccPacketData[_dccPacketCount] = (_dccPacketData[_dccPacketCount] << 1) + 1;
-		
-	} else if ((dccTimerTemp > DCC_PULSE_LENGTH_ZERO_MIN) && (dccTimerTemp < DCC_PULSE_LENGTH_ZERO_MAX)) {
-		// bit is 0
-		_dccPulseReceiveBit = 0;
-		
-		if (_preambleCount >= 11) {
-			// Packet Start Bit
-			_dccPulseBitCount = 1;
-			_dccPacketData[0] = 0;
-			_dccPacketCount = 0;
-			_dccPacketError = 0;
-			_preambleCount = 0;
-			return;
-		}
-		
-		_preambleCount = 0;
-		_dccPacketData[_dccPacketCount] = (_dccPacketData[_dccPacketCount] << 1);
-		
-	} else {
-		return;
-	}
-	
+	sei();
 
-	if (_dccPacketCount >= DCC_PACKET_LENGTH) {	// Ignore
+	// パルス長から 0/1 を判定（それ以外は同期を壊すのでリセット）
+	if ((dccTimerTemp > DCC_PULSE_LENGTH_ONE_MIN) && (dccTimerTemp < DCC_PULSE_LENGTH_ONE_MAX)) {
+		bit = 1;
+	} else if ((dccTimerTemp > DCC_PULSE_LENGTH_ZERO_MIN) && (dccTimerTemp < DCC_PULSE_LENGTH_ZERO_MAX)) {
+		bit = 0;
+	} else {
+		bit = 2; // invalid
+	}
+
+	// デジタル受信が続いている扱いにする（アナログ誤判定を減らす）
+	dccTimeoutCounter = 0;
+
+	// ---- DCC受信 状態機械 ----
+	static uint8_t inPacket = 0;
+	static uint8_t preambleOnes = 0;
+
+	static uint8_t bitPos = 0;      // 0..7: data bits, 8: delimiter/end bit
+	static uint8_t byteIndex = 0;
+	static uint8_t curByte = 0;
+	static uint8_t xorSum = 0;
+	static uint8_t buf[DCC_PACKET_LENGTH];
+
+	if (bit == 2) goto reset_state;
+
+	if (!inPacket) {
+		// プリアンブル: '1' が10個以上、その後の '0' がスタートビット
+		if (bit) {
+			if (preambleOnes < 32) preambleOnes++;
+		} else {
+			if (preambleOnes >= 10) {
+				inPacket = 1;
+				bitPos = 0;
+				byteIndex = 0;
+				curByte = 0;
+				xorSum = 0;
+			}
+			preambleOnes = 0;
+		}
 		return;
 	}
-	
-	if ((_dccPulseBitCount == 0) && (_dccPulseReceiveBit == 1)) {
-		// Packet End Bit
-		if (_dccPacketError == 0) {
-			
-			//dccRecvPacketCacheLength = 0;
-			//dccRecvPacketCacheEnableFlag = 0;
-			
-			//for (dccRecvPacketCacheLength = 0; dccRecvPacketCacheLength < _dccPacketCount; dccRecvPacketCacheLength++) {
-			//	dccRecvPacketCache[dccRecvPacketCacheLength] = _dccPacketData[dccRecvPacketCacheLength];
-			//}
-			//dccRecvPacketCacheEnableFlag = 1;
-			
-			for ((*recvPacketLength) = 0; (*recvPacketLength) < _dccPacketCount; (*recvPacketLength)++) {
-				recvPacket[(*recvPacketLength)] = _dccPacketData[(*recvPacketLength)];
-			}
-			
-			//packetTestRecv();
-			//sendPacketToUart();
-			
-			
-			
-		} else {
-			(*recvPacketLength) = 0;
-		}
-	} else {
-		(*recvPacketLength) = 0;
+
+	// データビット 8個
+	if (bitPos < 8) {
+		curByte = (uint8_t)((curByte << 1) | bit);
+		bitPos++;
+		return;
 	}
-	
-	_dccPulseBitCount++;
-	if (_dccPulseBitCount == 9) {
-		dccTimeoutCounter = 0;
-		
-		// Byte End (1-8: Packet Pulse / 9 = end)
-		if ((_dccPacketCount == 0) && (_dccPacketData[0] == 0xFF)) {
-			// Preamble
-			_dccPacketCount = 0xFF;
-			return;
-		}
-		
-		
-		_dccPacketError ^= _dccPacketData[_dccPacketCount];
-		_dccPacketCount++;
-		_dccPacketData[_dccPacketCount] = 0;
-		_dccPulseBitCount = 0;
-		
+
+	// 区切り(0) or 終端(1) ビット
+	if (byteIndex >= DCC_PACKET_LENGTH) goto reset_state;
+
+	buf[byteIndex] = curByte;
+	xorSum ^= curByte;
+	byteIndex++;
+
+	if (bit == 0) {
+		// 次バイトへ
+		curByte = 0;
+		bitPos = 0;
+		return;
 	}
-	
-	
+
+	// bit == 1: パケット終端
+	if ((xorSum == 0) && (byteIndex >= 3)) {
+		for ((*recvPacketLength) = 0; (*recvPacketLength) < byteIndex; (*recvPacketLength)++) {
+			recvPacket[(*recvPacketLength)] = buf[(*recvPacketLength)];
+		}
+	}
+
+reset_state:
+	inPacket = 0;
+	preambleOnes = 0;
+	bitPos = 0;
+	byteIndex = 0;
+	curByte = 0;
+	xorSum = 0;
+	return;
 }
 
 
