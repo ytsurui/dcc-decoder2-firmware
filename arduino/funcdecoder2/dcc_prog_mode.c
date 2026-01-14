@@ -31,7 +31,7 @@ void basicACK() {
 }
 
 void tinybasicACK() {
-	basicACKcounter = 11;
+	basicACKcounter = 5;
 	basicACKflag = 1;
 	
 	funcPortProgACK(FUNC_PROG_ACK_ON);
