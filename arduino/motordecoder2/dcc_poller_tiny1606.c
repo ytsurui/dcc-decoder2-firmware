@@ -46,8 +46,8 @@ uint8_t railcomSendFlag = 0;
 
 /* BaseClock = 20MHz/2 = 10MHz */
 #define DCC_PULSE_LENGTH_ONE_MIN	220		//44us (counter 1cycle = 200ns @ 10MHz)
-#define DCC_PULSE_LENGTH_ONE_MAX	450		//80us + 5us
-#define DCC_PULSE_LENGTH_ZERO_MIN	500		//90us
+#define DCC_PULSE_LENGTH_ONE_MAX	375		//75us
+#define DCC_PULSE_LENGTH_ZERO_MIN	425		//85us
 #define DCC_PULSE_LENGTH_ZERO_MAX	50000	//10000us
 //#define DCC_PULSE_LENGTH_ZERO_MAX	20000	//20000us
 
