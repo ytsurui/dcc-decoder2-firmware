@@ -72,7 +72,7 @@ megaTinyCoreをArduinoのボードマネージャに追加し、ビルドを行�
   </tr>
   <tr>
     <td>BOD Voltage Level</td>
-    <td>1.8V (5 MHz or less)</td>
+    <td>2.6V (5 MHz or less)</td>
   </tr>
   <tr>
     <td>BOD Mode when Active/Sleeping</td>
