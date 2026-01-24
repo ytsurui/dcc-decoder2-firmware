@@ -406,9 +406,6 @@ void dccPacketShifter(uint8_t* recvPacketLength, uint8_t* recvPacket)
 		bit = 2; // invalid
 	}
 
-	// デジタル受信が続いている扱いにする（アナログ誤判定を減らす）
-	dccTimeoutCounter = 0;
-
 	// ---- DCC受信 状態機械 ----
 	// 同期前(プリアンブル探索中)は一切バッファへ書き込まない。
 	// 8bit受信後は必ず区切りビット(0)/終端ビット(1)を検証する。
@@ -463,6 +460,8 @@ void dccPacketShifter(uint8_t* recvPacketLength, uint8_t* recvPacket)
 
 	// bit == 1: パケット終端
 	if ((xorSum == 0) && (byteIndex >= 3)) {
+		// デジタル受信が続いている扱いにする（アナログ誤判定を減らす）
+		dccTimeoutCounter = 0;
 		for ((*recvPacketLength) = 0; (*recvPacketLength) < byteIndex; (*recvPacketLength)++) {
 			recvPacket[(*recvPacketLength)] = buf[(*recvPacketLength)];
 		}
