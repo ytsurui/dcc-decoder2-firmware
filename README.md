@@ -118,7 +118,9 @@ Arduinoを使用する場合は、[こちら](arduino/README.md)もお読みく�
   * Digitrax DCS50K (KATO D101)
   * Digitrax DCS100
   * Roco Z21
-  * [DesktopStation DSair2](https://desktopstation.net/wiki/doku.php/dsair2)
+  * DesktopStation DSair2
+  * DesktopStation DSairLite
+  * STRV's Studio RM-CS03
 
 ### BiDi (Railcom) によるアドレス情報の受信
   * Railcom Train Addr Display

@@ -14,6 +14,7 @@
 #include "cv_value.h"
 
 #include "motor.h"
+#include "ABC_detector.h"
 
 #include "train_ctrl.h"
 
