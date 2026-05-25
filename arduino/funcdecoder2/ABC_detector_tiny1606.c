@@ -71,7 +71,7 @@ uint8_t setABCsumRight(uint8_t value) {
 		backValue += ABCsumRight[i];
 	}
 	
-	return (uint8_t)(backValue >> 4);
+	return (uint8_t)(backValue >> 2);
 }
 
 uint8_t setABCsumLeft(uint8_t value) {
