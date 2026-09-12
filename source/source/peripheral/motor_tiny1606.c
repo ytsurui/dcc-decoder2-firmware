@@ -80,7 +80,7 @@ void initMotorModule(void)
 	//TCA0.SINGLE.CMP0 = 0x2F;
 	TCA0.SINGLE.CMP0 = 0x00;
 	
-	PORTA.OUTSET |= PIN6_bm;
+	//PORTA.OUTSET |= PIN6_bm;
 	
 #ifdef AVR2
 	ADC0.CTRLA = ADC_ENABLE_bm;
