@@ -81,7 +81,7 @@
 #define CV58_DEFAULT	0x7F	// Analog Max Speed
 #define CV59_DEFAULT	0x03	// Analog Acceleration Rate
 
-#define CV60_DEFAULT	0x83	// Super Slow Configuration (0: Disable / 1: 60Hz / 2: 120Hz / 3: 30Hz) / Bit8: BEMF On/Off
+#define CV60_DEFAULT	0x83	// Super Slow Configuration (0: Disable / 1: 60Hz / 2: 120Hz / 3: 30Hz) / 0x80: DCC BEMF, 0x40: Analog BEMF (default off)
 #define CV61_DEFAULT	0x5F	// Super Slow Initialize Duty (0-255)
 #define CV62_DEFAULT	0xC0	// Super Slow End Speed (0-255)
 

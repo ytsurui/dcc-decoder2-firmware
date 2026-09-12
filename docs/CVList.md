@@ -227,7 +227,8 @@
   <tr>
     <td>60</td>
     <td>131</td>
-    <td>bit8: BEMFの有効化
+    <td>bit7 (0x80): DCC走行時のBEMFの有効化
+    <br>bit6 (0x40): アナログ走行時のBEMFの有効化（初期値では無効）
     <br>bit1-bit0: モーター低速回転支援機能
     <br>(0: Disable / 1: 60Hz / 2: 120Hz / 3: 30Hz)</td>
   </tr>
