@@ -152,7 +152,7 @@ int main(void)
 				switch (RTCclkFlag) {
 					case 1:
 						DCCpollerClkReceiver();
-						analogPollerClkReceiver();
+						analogPollerClkReceiver(); // Publish rail polarity/duty approximately every 0.5 s
 						break;
 #ifndef ATTINY806_FUNC
 					case 2:
