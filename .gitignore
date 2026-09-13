@@ -6,3 +6,5 @@
 *.lss
 *.map
 *.srec
+.DS_Store
+*.hex

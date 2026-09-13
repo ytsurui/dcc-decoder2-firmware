@@ -7,6 +7,8 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <util/atomic.h>
+#include "analog_poller.h"
 
 #include "uart.h"
 #include "../dcc/railcom.h"
@@ -101,20 +103,23 @@ void DCCpollerLeftReset(void);
 
 /* DCC Pin Checker Funcs/Variables */
 uint8_t oldPortStatFlag = 0;
-uint8_t portChecker(void);
-void portReader(uint8_t chkFlag);
+uint8_t portChecker(uint8_t pins);
+void portReader(uint8_t chkFlag, uint16_t count);
 
 //uint8_t railcomCounter2;
 
 
 ISR(PORTA_PORT_vect)
 {
-	PORTA.INTFLAGS |= (PIN2_bm | PIN4_bm);
-	portReader(portChecker());
+	PORTA.INTFLAGS = (PIN2_bm | PIN4_bm);
+	uint16_t count = TCB0.CNT;
+	uint8_t pins = PORTA.IN;
+	analogPollerEdgeReceiver(pins, count);
+	portReader(portChecker(pins), count);
 	
 	#ifndef NO_RAILCOM
-	if (CV29 & 0x08) {
-		if ((~PORTA.IN & PIN2_bm) && (~PORTA.IN & PIN4_bm)) {
+	if ((CV29 & 0x08) && (dccTimeoutCounter < DCCTIMEOUT_COUNTER_MAX)) {
+		if ((pins & (PIN2_bm | PIN4_bm)) == 0) {
 			// Railcom?
 			if (railcomCutoutFlag == 0) {
 				railcomCutoutFlag = 1;
@@ -175,31 +180,13 @@ ISR(TCB0_INT_vect)
 #endif
 */
 
-uint8_t portChecker(void) {
-	uint8_t chFlag = 0;
-	
-	if ((oldPortStatFlag & PIN2_bm) != (PORTA.IN & PIN2_bm)) {
-		chFlag |= 0x01;
-		if (PORTA.IN & PIN2_bm) {
-			oldPortStatFlag |= PIN2_bm;
-		} else {
-			oldPortStatFlag &= ~PIN2_bm;
-		}
-	}
-	
-	if ((oldPortStatFlag & PIN4_bm) != (PORTA.IN & PIN4_bm)) {
-		chFlag |= 0x02;
-		if (PORTA.IN & PIN4_bm) {
-			oldPortStatFlag |= PIN4_bm;
-		} else {
-			oldPortStatFlag &= ~PIN4_bm;
-		}
-	}
-	
-	return (chFlag);
+uint8_t portChecker(uint8_t pins) {
+	uint8_t changed = oldPortStatFlag ^ pins;
+	oldPortStatFlag = pins;
+	return ((changed & PIN2_bm ? 0x01 : 0) | (changed & PIN4_bm ? 0x02 : 0));
 }
 
-void portReader(uint8_t chkFlag) {
+void portReader(uint8_t chkFlag, uint16_t count) {
 	
 	if (chkFlag & 0x01) {
 
@@ -208,17 +195,17 @@ void portReader(uint8_t chkFlag) {
 			if ((oldInputPortStat & 0x01) == 0) {
 				oldInputPortStat |= 0x01;
 			
-				if (dccTimerRightStart < TCB0.CNT) {
-					dccTimerCounter = TCB0.CNT - dccTimerRightStart;
+				if (dccTimerRightStart < count) {
+					dccTimerCounter = count - dccTimerRightStart;
 				} else {
-					dccTimerCounter = 0xD000 - dccTimerRightStart + TCB0.CNT;
+					dccTimerCounter = 0xD000 - dccTimerRightStart + count;
 				}
 						
 				ABCpollerExecFlag |= 0x01;
-				if ((0xD000 - ABC_POLLER_INTERVAL) < TCB0.CNT) {
-					ABCpollerTimerRight = (TCB0.CNT + ABC_POLLER_INTERVAL) - 0xD000;
+				if ((0xD000 - ABC_POLLER_INTERVAL) < count) {
+					ABCpollerTimerRight = (count + ABC_POLLER_INTERVAL) - 0xD000;
 					} else {
-					ABCpollerTimerRight = TCB0.CNT + ABC_POLLER_INTERVAL;
+					ABCpollerTimerRight = count + ABC_POLLER_INTERVAL;
 				}
 			
 			}
@@ -228,7 +215,7 @@ void portReader(uint8_t chkFlag) {
 			// Start Right Count
 			if (oldInputPortStat & 0x01) {
 				oldInputPortStat &= ~0x01;
-				dccTimerRightStart = TCB0.CNT;
+				dccTimerRightStart = count;
 				ABCpollerExecFlag &= ~0x01;
 			}
 		
@@ -281,10 +268,10 @@ void portReader(uint8_t chkFlag) {
 				oldInputPortStat |= 0x02;
 				
 				ABCpollerExecFlag |= 0x02;
-				if ((0xD000 - ABC_POLLER_INTERVAL) < TCB0.CNT) {
-					ABCpollerTimerLeft = (TCB0.CNT + ABC_POLLER_INTERVAL) - 0xD000;
+				if ((0xD000 - ABC_POLLER_INTERVAL) < count) {
+					ABCpollerTimerLeft = (count + ABC_POLLER_INTERVAL) - 0xD000;
 				} else {
-					ABCpollerTimerLeft = TCB0.CNT + ABC_POLLER_INTERVAL;
+					ABCpollerTimerLeft = count + ABC_POLLER_INTERVAL;
 				}
 				
 			}
@@ -344,6 +331,7 @@ uint8_t readAnalogStat(void)
 
 void initDCCpoller(void)
 {
+	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
 	// Input: PA1 / PA2 (ATtiny202 Pin4/Pin5)
 	//PORTA.DIRCLR = PIN1_bm | PIN2_bm;
 	
@@ -353,7 +341,7 @@ void initDCCpoller(void)
 	PORTA.PIN2CTRL = PORT_ISC_BOTHEDGES_gc;
 	PORTA.PIN4CTRL = PORT_ISC_BOTHEDGES_gc;
 
-	// Max 6.55msec (1 / 5MHz * 32767, 1cycle=200ns)
+	// TCB0: 5 MHz, 0xD000 ticks per period = 10.6496 ms
 	//TCB0.INTCTRL = TCB_CAPT_bm;
 	//TCB0.CTRLA = TCB_CLKSEL_CLKDIV2_gc | TCB_ENABLE_bm | TCB_SYNCUPD_bm;
 #ifdef AVR2
@@ -362,6 +350,8 @@ void initDCCpoller(void)
 	TCB0.CTRLA = TCB_CLKSEL_CLKDIV2_gc | TCB_ENABLE_bm;
 #endif
 	TCB0.CCMP = 0xCFFF;
+	initAnalogPoller();
+	}
 	
 	//sei();
 }

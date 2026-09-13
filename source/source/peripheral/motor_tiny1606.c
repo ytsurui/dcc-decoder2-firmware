@@ -8,6 +8,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "motor.h"
+#include "dcc_poller.h"
 #include "../dcc/cv_value.h"
 
 
@@ -37,6 +38,13 @@ void pwmChangeFrequency(uint8_t freqCfg);
 uint8_t calcSuperSlowDutyValue(void);
 
 void calcMotorPID(void);
+
+/* CV60: DCC BEMF=0x80, analog BEMF=0x40; low-speed mode uses bits 1:0. */
+static uint8_t bemfEnabled(void)
+{
+	uint8_t mask = readAnalogStat() ? 0x40 : 0x80;
+	return (CV60_64[0] & mask) != 0;
+}
 
 
 ISR(TCA0_OVF_vect)
@@ -80,7 +88,7 @@ void initMotorModule(void)
 	//TCA0.SINGLE.CMP0 = 0x2F;
 	TCA0.SINGLE.CMP0 = 0x00;
 	
-	PORTA.OUTSET |= PIN6_bm;
+	//PORTA.OUTSET |= PIN6_bm;
 	
 #ifdef AVR2
 	ADC0.CTRLA = ADC_ENABLE_bm;
@@ -303,10 +311,10 @@ void HSclockReceiverMotorCtrl(void)
 	}
 	*/
 	
-	if ((CV60_64[0] & 0x7F) == 0) {
+	if ((CV60_64[0] & 0x03) == 0) {
 		// Enable PWM Output
 		//TCA0.SINGLE.CTRLB = TCA_SINGLE_WGMODE_SINGLESLOPE_gc | TCA_SINGLE_CMP0_bm;
-		if (CV60_64[0] & 0x80) {
+		if (bemfEnabled()) {
 			TCA0.SINGLE.CMP0 = bemfSPDvalue;
 		} else {
 			TCA0.SINGLE.CMP0 = nowSPDvalue;
@@ -314,7 +322,7 @@ void HSclockReceiverMotorCtrl(void)
 		return;
 	}
 	
-	if ((CV60_64[0] & 0x7F) == 3) {
+	if ((CV60_64[0] & 0x03) == 3) {
 		superslowBaseCounter++;
 		if (superslowBaseCounter >= 1) {
 			superslowBaseCounter = 0;
@@ -337,7 +345,7 @@ void HSclockReceiverMotorCtrl(void)
 		//PORTB.OUTCLR = PIN0_bm;
 	} else {
 		// Enable PWM Output
-		if (CV60_64[0] & 0x80) {
+		if (bemfEnabled()) {
 			TCA0.SINGLE.CMP0 = bemfSPDvalue;	
 		} else {
 			TCA0.SINGLE.CMP0 = fixedSPDvalue;
@@ -365,7 +373,7 @@ uint16_t getCurrentValue(void) {
 
 void captureBEMF(void)
 {
-	if (~CV60_64[0] & 0x80) return;
+	if (!bemfEnabled()) return;
 	//if (currentReadFlag != 0) return;
 	if (bemfReadFlag == 0) bemfReadFlag = 1;
 }

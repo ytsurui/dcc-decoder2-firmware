@@ -11,6 +11,7 @@
 #ifndef ATTINY806_FUNC
 
 #include <avr/io.h>
+#include "../peripheral/analog_poller.h"
 
 #include "../dcc/cv_value.h"
 //#include "../peripheral/pwm_motor_ctrl.h"
@@ -79,7 +80,7 @@ void setspeed(uint8_t direction, uint8_t speed)
 		pwm_cutout_timer = 255;
 	}
 	
-	if (speed == 1) {
+	if (!spdAnalogFlag && speed == 1) {
 		//Emergency Stop
 		now_spd = 0;
 		target_spd = 0;
@@ -238,7 +239,15 @@ void setspeed_analog(uint8_t direction)
 			direction = 2;
 		}
 	}
-	setspeed(direction, CV58);
+	/* CV58 is the full-duty ceiling; CV59 is applied by the clock receiver. */
+	uint8_t speed = (uint8_t)(((uint16_t)CV58 * analogDuty() + 127U) / 255U);
+	/* No valid polarity yet: keep the motor stopped without inventing one. */
+	if (analogDirection() == 0) {
+		target_spd = now_spd = 0;
+		pwmSetSpeed(0);
+		return;
+	}
+	setspeed(direction, speed);
 }
 
 
