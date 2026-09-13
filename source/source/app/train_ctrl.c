@@ -78,6 +78,28 @@ static void beginReversal(void)
 	resetRampClock();
 }
 
+/* Returning to the bridge's current direction cancels only the operator reversal. */
+static void cancelReversal(void)
+{
+	if (reversalABC) ABCworkedFlag |= 1;
+	reversalState = REV_IDLE;
+	reversalABC = reversalWait = 0;
+	resetRampClock();
+}
+
+/* Manual reduction is an upper bound, never an acceleration during braking. */
+static void limitReversalSpeed(uint8_t speed)
+{
+	if (reversalState != REV_DECEL || speed >= now_spd) return;
+	now_spd = speed;
+	pwmSetSpeed(now_spd);
+	if (now_spd == 0) {
+		reversalState = REV_WAIT;
+		reversalWait = REV_STOP_TICKS;
+		resetRampClock();
+	}
+}
+
 static void emergencyStop(void)
 {
 	reversalState = REV_IDLE;
@@ -170,14 +192,22 @@ static void setspeedCommand(uint8_t direction, uint8_t speed, uint8_t emergency)
 	if (!spdAnalogFlag && CV33_43[10] != 1) {
 		requestedDirection = direction;
 		if (reversalState != REV_IDLE) {
-			target_spd = speed;
-			if (reversalState == REV_ACCEL && direction != nowDirection) beginReversal();
-			return;
+			if ((reversalState == REV_DECEL || reversalState == REV_WAIT) &&
+			    direction == nowDirection) {
+				cancelReversal();
+				/* Continue below with the existing normal/ABC speed control. */
+			} else {
+				target_spd = speed;
+				if (reversalState == REV_ACCEL && direction != nowDirection) beginReversal();
+				limitReversalSpeed(speed);
+				return;
+			}
 		}
 		if (direction != nowDirection && now_spd != 0 &&
 		    (nowDirection == 1 || nowDirection == 2)) {
 			target_spd = speed;
 			beginReversal();
+			limitReversalSpeed(speed);
 			return;
 		}
 	}

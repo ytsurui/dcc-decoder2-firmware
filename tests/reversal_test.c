@@ -94,10 +94,11 @@ static void testNormal(void) {
 }
 static void testUpdates(void) {
     reset(8); command(2,12); tick(32); command(1,4);
-    tick(16*6+255); assert(now_spd==0 && outputDirection==1);
-    tick(16*4); assert(now_spd==4);
+    assert(reversalState==REV_IDLE && now_spd==4 && outputDirection==1);
+    tick(400); assert(now_spd==4 && outputDirection==1);
     reset(4); command(2,8); tick(64); command(1,6);
-    tick(255+96); assert(now_spd==6 && outputDirection==1);
+    assert(reversalState==REV_IDLE && reversalWait==0);
+    assert(now_spd==6 && outputDirection==1);
     reset(4); command(2,8); tick(64+255+32);
     assert(now_spd==2); command(1,5);
     tick(32+255+80); assert(now_spd==5 && outputDirection==1);
@@ -118,6 +119,61 @@ static void testUpdates(void) {
     assert(now_spd==0 && motorStartDelayCount==0 && motorStartDelaySpd==0);
     reset(4); CV140=5; command(2,8); tick(64+255+16);
     assert(now_spd==1 && motorStartDelayCount==0);
+}
+static void testManualOverride(void) {
+    /* Cancellation resumes the existing CV3 ramp from the current speed. */
+    reset(8); CV1_6[2]=2; command(2,12); tick(32);
+    assert(now_spd==6); command(1,10);
+    assert(reversalState==REV_IDLE && now_spd==6 && outputDirection==1);
+    tick(31); assert(now_spd==6); tick(1); assert(now_spd==7);
+    tick(96); assert(now_spd==10 && outputDirection==1);
+    /* Cancellation also preserves ordinary CV4 deceleration. */
+    reset(8); CV1_6[3]=2; command(2,12); tick(32); command(1,4);
+    assert(reversalState==REV_IDLE && now_spd==7);
+    tick(32); assert(now_spd==6);
+    /* Reversal is still possible after cancellation. */
+    command(2,10); assert(reversalState==REV_DECEL);
+    tick(6*32+255); assert(now_spd==0 && outputDirection==2);
+    /* Lower input applies at receipt, including with nonzero CV4 and CV2. */
+    reset(80); CV1_6[1]=40; CV1_6[3]=3;
+    command(2,100); tick(10); command(2,30);
+    assert(now_spd==30 && nowSPDvalue==30 && outputDirection==1);
+    assert(clock_recv_counter==10);
+    for (unsigned i=0;i<37;++i) { command(2,30); tick(1); }
+    assert(now_spd==30); tick(1); assert(now_spd==29);
+    /* Raising the reverse target never raises speed before the turn. */
+    command(2,100); assert(now_spd==29 && target_spd==100);
+    command(2,5); assert(now_spd==5 && nowSPDvalue==5);
+    command(2,0); assert(now_spd==0 && TCA0.SINGLE.CMP0==0);
+    assert(reversalState==REV_WAIT && reversalWait==255);
+    for (unsigned i=0;i<254;++i) { command(2,0); tick(1); }
+    assert(outputDirection==1); tick(1); assert(outputDirection==2);
+    tick(100); assert(now_spd==0);
+    /* A lower target on the first reversal packet is also an upper bound. */
+    reset(80); command(2,30); assert(now_spd==30 && nowSPDvalue==30);
+    reset(80); command(2,0);
+    assert(reversalState==REV_WAIT && now_spd==0 && outputDirection==1);
+    /* Same-direction command cancels the wait, including a CV140 restart. */
+    CV140=2; command(1,20);
+    assert(reversalState==REV_IDLE && reversalWait==0 && outputDirection==1);
+    assert(motorStartDelayCount==2); tick(200); assert(now_spd==0);
+    tick(16); assert(now_spd==1);
+    /* Keep ABC braking if the restored direction still points into its section. */
+    reset(8); abcStatus=1; CV54=3; CV53=4;
+    command(2,12); tick(16); command(1,12);
+    assert(reversalState==REV_IDLE && (ABCworkedFlag & 1) && now_spd==7);
+    tick(48); assert(now_spd==6 && outputDirection==1);
+    /* Cancellation after leaving ABC preserves the CV53 recovery rate. */
+    abcStatus=0; tick(64); assert(now_spd==7);
+    /* Manual reduction during ABC reversal retains CV53 on the far side. */
+    reset(8); abcStatus=1; CV53=4; command(2,12); command(2,2);
+    assert(now_spd==2); tick(32+255);
+    assert(now_spd==0 && outputDirection==2);
+    tick(63); assert(now_spd==0); tick(1); assert(now_spd==1);
+    /* Cancellation never changes direction-dependent lights. */
+    reset(8); CV33_43[2]=0x40; CV33_43[3]=0x80;
+    funcCtrl(1,0x10,1); command(2,12); tick(16); command(1,12);
+    tick(400); assert((funcPortStat & 3)==1 && outputDirection==1);
 }
 static void testABC(void) {
     reset(4); abcStatus=1; ABCworkedFlag=1; CV53=4; CV52=1;
@@ -211,7 +267,7 @@ static void testPWMStop(void) {
     pwmProgMode(PWM_PROG_MODE_OFF); assert(pwmProgModeFlag==0);
 }
 int main(void) {
-    testNormal(); testUpdates(); testABC(); testLightsAndModes();
+    testNormal(); testUpdates(); testManualOverride(); testABC(); testLightsAndModes();
     testSpeedDecoding(); testPWMStop();
-    puts("PASS: reversal timing, CV rates, command updates/stops, CV140, ABC recovery/auto, lights, CV43, analog isolation, speed decoding, BEMF stop");
+    puts("PASS: reversal timing, CV rates, manual cancellation/speed limit, command updates/stops, CV140, ABC recovery/auto, lights, CV43, analog isolation, speed decoding, BEMF stop");
 }
