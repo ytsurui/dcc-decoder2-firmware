@@ -38,7 +38,7 @@
   </tr>
   <tr>
     <td>7</td>
-    <td>1</td>
+    <td>7</td>
     <td>バージョン番号</td>
   </tr>
   <tr>
@@ -175,7 +175,7 @@
     <td>50</td>
     <td>255</td>
     <td>アナログ走行時のファンクション有効化フラグ
-    <br>(bit8: Func8, bit7: Func7, ..., bit0: Func0)</td>
+    <br>(bit7: Func8, bit6: Func7, ..., bit0: Func1)</td>
   </tr>
   <tr>
     <td>51</td>
