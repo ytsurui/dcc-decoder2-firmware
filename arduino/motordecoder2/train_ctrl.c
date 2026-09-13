@@ -14,6 +14,7 @@
 #include "analog_poller.h"
 
 #include "cv_value.h"
+//#include "pwm_motor_ctrl.h"
 #include "motor.h"
 #include "ABC_detector.h"
 #include "func_ctrl.h"
@@ -50,15 +51,130 @@ uint8_t spdCache2;
 uint8_t motorStartDelayCount = 0;	// Motor Start Delay Counter (CV140)
 uint8_t motorStartDelaySpd = 0;		// Motor Start Delay New SPD
 
+/* DCC operator reversal. ABC automatic reversal and analog keep their own paths. */
+#define REV_IDLE 0
+#define REV_DECEL 1
+#define REV_WAIT 2
+#define REV_ACCEL 3
+#define REV_MIN_RATE 1
+#define REV_STOP_TICKS 255 /* approximately 250 ms at 1024 Hz */
+static uint8_t reversalState;
+static uint8_t requestedDirection;
+static uint8_t reversalABC;
+static uint8_t reversalWait;
+
+uint8_t readMotorDirection(void) { return nowDirection; }
+
+static void resetRampClock(void)
+{
+	clock_recv_counter = Rate_counter = 0;
+}
+
+static void beginReversal(void)
+{
+	reversalState = REV_DECEL;
+	reversalABC = (ABCworkedFlag & 1) || getABCstatus() == nowDirection;
+	pwm_cutout_timer = motorStartDelayCount = motorStartDelaySpd = 0;
+	resetRampClock();
+}
+
+/* Returning to the bridge's current direction cancels only the operator reversal. */
+static void cancelReversal(void)
+{
+	if (reversalABC) ABCworkedFlag |= 1;
+	reversalState = REV_IDLE;
+	reversalABC = reversalWait = 0;
+	resetRampClock();
+}
+
+/* Manual reduction is an upper bound, never an acceleration during braking. */
+static void limitReversalSpeed(uint8_t speed)
+{
+	if (reversalState != REV_DECEL || speed >= now_spd) return;
+	now_spd = speed;
+	pwmSetSpeed(now_spd);
+	if (now_spd == 0) {
+		reversalState = REV_WAIT;
+		reversalWait = REV_STOP_TICKS;
+		resetRampClock();
+	}
+}
+
+static void emergencyStop(void)
+{
+	reversalState = REV_IDLE;
+	reversalABC = reversalWait = 0;
+	motorStartDelayCount = motorStartDelaySpd = pwm_cutout_timer = 0;
+	now_spd = target_spd = 0;
+	resetRampClock();
+	pwmSetSpeed(0);
+}
+
+/* Return true while this state machine owns speed and direction. */
+static uint8_t clockReversal(void)
+{
+	uint8_t rate;
+	if (reversalState == REV_IDLE) return 0;
+	if (reversalState == REV_WAIT) {
+		pwmSetSpeed(0);
+		if (--reversalWait) return 1;
+		pwmSetDirection(requestedDirection);
+		nowDirection = requestedDirection;
+		resetRampClock();
+		if (reversalABC) {
+			/* Let the existing ABC recovery select CV53 (or CV3 fallback). */
+			ABCworkedFlag |= 1;
+			reversalState = REV_IDLE;
+		} else {
+			reversalState = REV_ACCEL;
+		}
+		return 1;
+	}
+	if (reversalState == REV_DECEL) {
+		if (getABCstatus() == nowDirection) reversalABC = 1;
+		rate = CV1_6[3];
+	} else {
+		/* A newly entered ABC section must still be able to stop the train. */
+		if (getABCstatus() == nowDirection) {
+			reversalState = REV_IDLE;
+			return 0;
+		}
+		rate = now_spd > target_spd ? CV1_6[3] : CV1_6[2];
+	}
+	if (rate < REV_MIN_RATE) rate = REV_MIN_RATE;
+	if (++clock_recv_counter < 16) return 1;
+	clock_recv_counter = 0;
+	if (++Rate_counter < rate) return 1;
+	Rate_counter = 0;
+	if (reversalState == REV_DECEL) {
+		if (now_spd) --now_spd;
+		pwmSetSpeed(now_spd);
+		if (now_spd == 0) {
+			reversalState = REV_WAIT;
+			reversalWait = REV_STOP_TICKS;
+		}
+	} else {
+		if (now_spd < target_spd) ++now_spd;
+		else if (now_spd > target_spd) --now_spd;
+		pwmSetSpeed(now_spd);
+		if (now_spd == target_spd) reversalState = REV_IDLE;
+	}
+	return 1;
+}
+
 uint8_t getSpdCache2(void) {
 	return (spdCache2);
 }
 
 //void setspeed(uint8_t direction, uint8_t speed, uint8_t *acceleRate, uint8_t *deacceleRate)
-void setspeed(uint8_t direction, uint8_t speed)
+static void setspeedCommand(uint8_t direction, uint8_t speed, uint8_t emergency)
 {
 	//static uint8_t old_direction = 0xFF;
 	spdCache2 = speed;
+	if (emergency) {
+		emergencyStop();
+		return;
+	}
 	
 	//if (getYardModeStat()) speed = speed >> 1;	
 	if (getYardModeStat()) {
@@ -73,18 +189,32 @@ void setspeed(uint8_t direction, uint8_t speed)
 		}
 	}
 
+	if (!spdAnalogFlag && CV33_43[10] != 1) {
+		requestedDirection = direction;
+		if (reversalState != REV_IDLE) {
+			if ((reversalState == REV_DECEL || reversalState == REV_WAIT) &&
+			    direction == nowDirection) {
+				cancelReversal();
+				/* Continue below with the existing normal/ABC speed control. */
+			} else {
+				target_spd = speed;
+				if (reversalState == REV_ACCEL && direction != nowDirection) beginReversal();
+				limitReversalSpeed(speed);
+				return;
+			}
+		}
+		if (direction != nowDirection && now_spd != 0 &&
+		    (nowDirection == 1 || nowDirection == 2)) {
+			target_spd = speed;
+			beginReversal();
+			limitReversalSpeed(speed);
+			return;
+		}
+	}
 	if (direction != nowDirection) {
 		pwmSetDirection(direction);
 		nowDirection = direction;
 		pwm_cutout_timer = 255;
-	}
-	
-	if (!spdAnalogFlag && speed == 1) {
-		//Emergency Stop
-		now_spd = 0;
-		target_spd = 0;
-		pwmSetSpeed(0);
-		return;
 	}
 
 	if ((target_spd == 0) && (CV140 != 0)) {
@@ -156,6 +286,11 @@ void setspeed(uint8_t direction, uint8_t speed)
 	}
 }
 
+void setspeed(uint8_t direction, uint8_t speed)
+{
+	setspeedCommand(direction, speed, !spdAnalogFlag && speed == 1);
+}
+
 void setspeed_28step(uint8_t direction, uint8_t speed)
 {
 	uint8_t tableindex;
@@ -184,7 +319,7 @@ void setspeed_28step(uint8_t direction, uint8_t speed)
 	
 	spd2 = CV67_94[tableindex - 4];
 	
-	setspeed(direction, spd2);
+	setspeedCommand(direction, spd2, 0);
 }
 
 void setspeed_128step(uint8_t direction, uint8_t speed)
@@ -193,6 +328,10 @@ void setspeed_128step(uint8_t direction, uint8_t speed)
 	uint8_t scaled_spd;
 	
 	spdAnalogFlag = 0;
+	if (speed <= 1) {
+		setspeedCommand(direction, 0, speed == 1);
+		return;
+	}
 	
 	/*
 	if ((CV2 < CV6) && (CV6 < CV5)) {
@@ -225,11 +364,13 @@ void setspeed_128step(uint8_t direction, uint8_t speed)
 		scaled_spd = speed << 1;
 	}
 	
-	setspeed(direction, scaled_spd);
+	setspeedCommand(direction, scaled_spd, 0);
 }
 
 void setspeed_analog(uint8_t direction)
 {
+	/* Discard a pending DCC reversal when entering analog operation. */
+	reversalState = REV_IDLE;
 	spdAnalogFlag = 1;
 	if (readDirectionReverse()) {
 		if (direction == 2) {
@@ -252,6 +393,7 @@ void setspeed_analog(uint8_t direction)
 
 void clock_receiver_train_ctrl(void)
 {
+	if (!spdAnalogFlag && CV33_43[10] != 1 && clockReversal()) return;
 	if (pwm_cutout_timer) {
 		pwm_cutout_timer--;
 
@@ -385,7 +527,7 @@ void clock_receiver_train_ctrl(void)
 					
 					pwmSetSpeed(now_spd);
 					Rate_counter = 0;
-                    
+
 				} 
 			}
 		}
@@ -413,6 +555,8 @@ uint8_t checkABCreverseDirection(void) {
 
 
 void clockReceiverABCctrl(void) {
+	/* External reversal owns the bridge until its stop/turn sequence finishes. */
+	if (reversalState != REV_IDLE) return;
 	if (CV52 == 0) return;
 	if (getABCstatus() != nowDirection) {
 		ABCautoReverseCount1 = 0;

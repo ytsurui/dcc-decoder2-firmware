@@ -24,6 +24,7 @@ uint8_t superslowValue = 0;
 
 uint8_t throttleSPDvalue = 0;
 uint8_t bemfSPDvalue = 0;
+static int16_t bemfIntegral, bemfPreviousError;
 uint8_t nowSPDvalue = 0;
 uint8_t fixedSPDvalue = 0;
 
@@ -149,6 +150,13 @@ void pwmSetSpeed(uint8_t spd)
 		return;
 	}
 		
+	if (spd == 0 && !readAnalogStat()) {
+		throttleSPDvalue = nowSPDvalue = fixedSPDvalue = bemfSPDvalue = 0;
+		bemfIntegral = bemfPreviousError = 0;
+		bemfReadFlag = bemfSaveSpdValue = 0;
+		if (!pwmProgModeFlag) TCA0.SINGLE.CMP0 = 0;
+		return;
+	}
 	if (spd != nowSPDvalue) {
 		throttleSPDvalue = spd;
 		nowSPDvalue = spd;
@@ -241,6 +249,10 @@ void HSclockReceiverMotorCtrl(void)
 	
 	if (pwmProgModeFlag) return;
 	
+	if (nowSPDvalue == 0 && !readAnalogStat()) {
+		pwmSetSpeed(0);
+		return;
+	}
 	if (bemfReadFlag) {
 		if (bemfReadFlag < 100) {
 			if (bemfReadFlag == 1) {
@@ -374,6 +386,7 @@ uint16_t getCurrentValue(void) {
 void captureBEMF(void)
 {
 	if (!bemfEnabled()) return;
+	if (nowSPDvalue == 0 && !readAnalogStat()) return;
 	//if (currentReadFlag != 0) return;
 	if (bemfReadFlag == 0) bemfReadFlag = 1;
 }
@@ -387,8 +400,7 @@ void calcMotorPID(void) {
 	
 	int16_t bemfADCfixedValue;
 	int16_t P, D, dt;
-	static int16_t I;
-	static int16_t preP;
+
 	
 	int16_t Kp, Ki, Kd;
 	int16_t calcValue;
@@ -412,13 +424,13 @@ void calcMotorPID(void) {
 	if (bemfADCfixedValue > 255) bemfADCfixedValue = 255;
 	
 	P = (int16_t)throttleSPDvalue - bemfADCfixedValue;
-	I += P / dt;
-	D = (P - preP) / (dt * 10);
-	preP = P;
+	bemfIntegral += P / dt;
+	D = (P - bemfPreviousError) / (dt * 10);
+	bemfPreviousError = P;
 	
-	calcValue = (int16_t)throttleSPDvalue + ((Kp * P / 10) + (Ki * I / 10) + ((Kd * D) / 10));
-	//calcValue = (Kp * P / 10) + (Ki * I / 10) + ((Kd * D) / 10);
-	//bemfSPDvalue = (uint8_t)((Kp * P) + (Ki * I));
+	calcValue = (int16_t)throttleSPDvalue + ((Kp * P / 10) + (Ki * bemfIntegral / 10) + ((Kd * D) / 10));
+	//calcValue = (Kp * P / 10) + (Ki * bemfIntegral / 10) + ((Kd * D) / 10);
+	//bemfSPDvalue = (uint8_t)((Kp * P) + (Ki * bemfIntegral));
 	if (calcValue > 255) {
 		bemfSPDvalue = 255;
 	} else if (calcValue < 0) {

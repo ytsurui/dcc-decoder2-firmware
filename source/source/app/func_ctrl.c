@@ -12,6 +12,10 @@
 #include "../dcc/dcc_router.h"
 
 #include "../peripheral/motor.h"
+#ifndef ATTINY806_FUNC
+#include "train_ctrl.h"
+#include "../peripheral/dcc_poller.h"
+#endif
 
 #include "func_effect.h"
 
@@ -41,6 +45,17 @@ uint8_t oldFuncPortStat = 0;
 uint8_t funcPortStat = 0;
 
 uint8_t funcSetDirection;
+#ifndef ATTINY806_FUNC
+static uint8_t requestedFuncPorts;
+static uint8_t lastMotorLightDirection;
+static uint8_t motorLightDirection(uint8_t fallback)
+{
+	uint8_t direction = readMotorDirection();
+	if (!readAnalogStat() && CV33_43[10] != 1 && (direction == 1 || direction == 2))
+		return direction;
+	return fallback;
+}
+#endif
 
 uint16_t funcStatusCount[9];
 uint8_t HSfuncValue[9];
@@ -178,6 +193,10 @@ void clockReceiverFuncCtrlSub(uint8_t i) {
 				}
 			}
 				
+			#ifndef ATTINY806_FUNC
+			dirFlag = motorLightDirection(dirFlag);
+			#endif
+
 			// Function Enable Flag Control
 			if (CV33_43[i + 2] & 0x80) {
 				if (dirFlag == 2) {
@@ -249,6 +268,23 @@ void clockReceiverFuncCtrl(void)
 	
 	if (readFuncProgMode()) return;
 	
+	#ifndef ATTINY806_FUNC
+	uint8_t direction = motorLightDirection(funcSetDirection);
+	if (!readAnalogStat() && CV33_43[10] != 1 &&
+	    (direction == 1 || direction == 2)) {
+		if (direction != lastMotorLightDirection) {
+			lastMotorLightDirection = direction;
+			funcSetDirection = direction;
+			for (i = 0; i < 7; ++i) {
+				uint8_t cv = CV33_43[i + 2];
+				if ((cv & 0x1F) != 0x1F)
+					funcSetPort(i, cv, cv & 0x1F, requestedFuncPorts & (1 << i), direction);
+			}
+		}
+	} else {
+		lastMotorLightDirection = 0;
+	}
+	#endif
 	funcCount++;
 	if (funcCount > FUNC_COUNT_MAX) funcCount = 0;
 	
@@ -337,6 +373,10 @@ void funcCtrl(uint8_t group, uint8_t funcData, uint8_t direction)	// F13-F20, F2
 		}
 	}
 	
+	#ifndef ATTINY806_FUNC
+	direction = motorLightDirection(direction);
+	#endif
+
 	mask = 0x01;
 	for (i = min; i <= max; i++) {
 		if (funcTable & mask) funcSet(i, funcData & mask, direction);
@@ -396,6 +436,10 @@ void funcSetPort(uint8_t funcPort, uint8_t cv, uint8_t funcNum, uint8_t stat, ui
 	uint8_t stat2;
 	
 	if ((cv & 0x1F) == funcNum) {
+		#ifndef ATTINY806_FUNC
+		if (stat) requestedFuncPorts |= (1 << funcPort);
+		else requestedFuncPorts &= ~(1 << funcPort);
+		#endif
 		// Check Direction
 		stat2 = 0;
 		if ((cv & 0xC0) == 0) {

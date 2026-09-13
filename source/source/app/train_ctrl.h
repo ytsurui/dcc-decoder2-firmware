@@ -20,3 +20,4 @@ uint8_t checkABCreverseDirection(void);
 uint8_t get_speed_8bit(void);
 
 uint8_t getSpdCache2(void);
+uint8_t readMotorDirection(void);
