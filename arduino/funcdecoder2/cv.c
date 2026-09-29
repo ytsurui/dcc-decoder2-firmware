@@ -164,7 +164,7 @@ void setFuncTable(uint8_t funcNum) {
 	} else if (funcNum <= 20) {
 		funcTable4 |= (1 << (funcNum - 13));
 	} else if (funcNum <= 28) {
-		funcTable5 |= (1 << (funcNum - 20));
+		funcTable5 |= (1 << (funcNum - 21));
 	}
 }
 
