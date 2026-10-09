@@ -122,6 +122,8 @@ void initialize_cv(void)
 	write_eeprom(120, CV120_DEFAULT);
 	write_eeprom(121, CV121_DEFAULT);
 	write_eeprom(122, CV122_DEFAULT);
+	write_eeprom(123, CV123_DEFAULT);
+	write_eeprom(124, CV124_DEFAULT);
 #ifndef ATTINY806_FUNC
 	write_eeprom(131, CV131_DEFAULT);
 	write_eeprom(138, CV138_DEFAULT);
@@ -232,6 +234,8 @@ void load_cv(void)
 		setFuncTable(CV33_43[i] & 0x1F);
 		CV112_CV122[i] = read_cv_raw(112 + i);
 	}
+	CV123 = read_cv_raw(123);
+	CV124 = read_cv_raw(124);
 	CV44 = read_cv_raw(44);
 	CV45 = read_cv_raw(45);
 	setFuncTable(CV44 & 0x1F);
@@ -507,6 +511,12 @@ void write_cv_byte(uint16_t CVnum, uint8_t data)
 		case 121:
 		case 122:
 			CV112_CV122[CVnum2 - 112] = data;
+			break;
+		case 123:
+			CV123 = data;
+			break;
+		case 124:
+			CV124 = data;
 			break;
 #ifndef ATTINY806_FUNC
 		case 131:

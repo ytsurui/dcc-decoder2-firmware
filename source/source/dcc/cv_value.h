@@ -176,6 +176,12 @@ uint8_t CV67_94[28];	// Speed Table
 
 uint8_t CV112_CV122[11];
 
+// Function group masks: bit0=Func1, ..., bit7=Func8.
+#define CV123_DEFAULT 0x87 // Front: Func1, Func2, Func3, Func8
+#define CV124_DEFAULT 0x38 // Rear: Func4, Func5, Func6
+uint8_t CV123; // Front function group
+uint8_t CV124; // Rear function group
+
 #ifndef ATTINY806_FUNC
 uint8_t CV131;				// Yard Mode Max Speed
 

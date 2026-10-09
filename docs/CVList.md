@@ -321,6 +321,20 @@
     <br>初期値: 照度15 (最大) / テールライト右</td>
   </tr>
   <tr>
+    <td>123</td>
+    <td>135 (0x87)</td>
+    <td>前位ファンクショングループ
+    <br>bit0～bit7: Func1～Func8。1の出力をグループに含める。
+    <br>初期値: Func1・Func2・Func3・Func8</td>
+  </tr>
+  <tr>
+    <td>124</td>
+    <td>56 (0x38)</td>
+    <td>後位ファンクショングループ
+    <br>bit0～bit7: Func1～Func8。1の出力をグループに含める。
+    <br>初期値: Func4・Func5・Func6</td>
+  </tr>
+  <tr>
     <td>131</td>
     <td>63</td>
     <td>入れ替えモード有効時の最高速度
