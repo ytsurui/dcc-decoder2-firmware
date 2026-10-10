@@ -117,7 +117,7 @@ void pwmSetDirection(uint8_t dir)
 {
 	if (pwmProgModeFlag) return;
 	
-	if (CV33_43[10] == 1) return;
+	if (CV33_45[10] == 1) return;
 	
 	if (dir == PWM_DIRECTION_FOR) {
 		// PWD
@@ -139,7 +139,7 @@ void pwmSetSpeed(uint8_t spd)
 	uint16_t calcTemp;
 	//TCA0.SINGLE.CMP0 = spd;
 	
-	if (CV33_43[10] == 1) {
+	if (CV33_45[10] == 1) {
 		nowSPDvalue = spd;
 		return;
 	}
@@ -191,7 +191,7 @@ void pwmProgMode(uint8_t stat)
 void pwmChangeFreqOperation(uint8_t freqCfg)
 {
 	if (pwmProgModeFlag) return;
-	if (CV33_43[10] == 1) return;
+	if (CV33_45[10] == 1) return;
 	
 	pwmfreqChangeFlag = freqCfg;
 	TCA0.SINGLE.INTCTRL |= TCA_SINGLE_OVF_bm;
@@ -218,7 +218,7 @@ uint8_t calcSuperSlowDutyValue(void)
 // 16kHz Signal Receiver
 void HSclockReceiverMotorCtrl(void)
 {
-	if (CV33_43[10] == 1) return;
+	if (CV33_45[10] == 1) return;
 	
 	if (pwmProgModeFlag) return;
 	
@@ -392,7 +392,7 @@ uint16_t getBEMFFixedSpdValue(void) {
 */
 
 void motorFuncDriver(uint8_t stat, uint8_t direction) {
-	if (CV33_43[10] != 1) return;
+	if (CV33_45[10] != 1) return;
 	
 	// Disable PWM Output
 	//#ifndef ATTINY806_FUNC

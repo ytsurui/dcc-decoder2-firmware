@@ -55,8 +55,8 @@
 #else
 #define CV43_DEFAULT	0b00000000		// MotorDriver Function Enable (0: Disabled / 1: Enabled)
 #endif
-#define CV44_DEFAULT	0b00111110		// Headlight On Backward (Disabled)
-#define CV45_DEFAULT	0b00111110		// Headlight On Forward (Disabled)
+#define CV44_DEFAULT	0b00111110		// Front group headlight override (Disabled)
+#define CV45_DEFAULT	0b00111110		// Rear group headlight override (Disabled)
 //#define CV50_DEFAULT	0b11001001		// Analog Function Enable Flag (bit7-0: Func8-Func1 Enable)
 #define CV50_DEFAULT	0b11111111		// Analog Function Enable Flag (bit7-0: Func8-Func1 Enable)
 
@@ -131,10 +131,8 @@ uint8_t CV29;		// Decoder Configuration
 //uint8_t CV35;		// Func1 Address Configuration		
 //uint8_t CV36;		// Func2 Address Configuration
 
-uint8_t CV33_43[11];
+uint8_t CV33_45[13]; // Index = CV number - 33; [11]: front override, [12]: rear override
 
-uint8_t CV44;		// Headlight Only Function Backward
-uint8_t CV45;		// Headlight Only Function Forward
 
 #ifndef ATTINY806_FUNC
 uint8_t CV47;		// PWM KickStart Configuration
@@ -175,6 +173,12 @@ uint8_t CV67_94[28];	// Speed Table
 //uint8_t CV115;		// Func2 Type Configuration
 
 uint8_t CV112_CV122[11];
+
+// Function group masks: bit0=Func1, ..., bit7=Func8.
+#define CV123_DEFAULT 0x87 // Front: Func1, Func2, Func3, Func8
+#define CV124_DEFAULT 0x38 // Rear: Func4, Func5, Func6
+uint8_t CV123; // Front function group
+uint8_t CV124; // Rear function group
 
 #ifndef ATTINY806_FUNC
 uint8_t CV131;				// Yard Mode Max Speed

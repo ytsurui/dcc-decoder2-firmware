@@ -41,7 +41,7 @@ int main(void) {
    for(unsigned low=0; low<4; ++low) {
     CV60_64[0]=(flags<<6)|low;
     unsigned enabled=!!(CV60_64[0] & (mode ? 0x40 : 0x80));
-    bemfReadFlag=0; pwmProgModeFlag=0; CV33_43[10]=0;
+    bemfReadFlag=0; pwmProgModeFlag=0; CV33_45[10]=0;
     nowSPDvalue=100; fixedSPDvalue=150; bemfSPDvalue=200;
     superslowValue=128; superslowCounter=0; superslowBaseCounter=0;
     HSclockReceiverMotorCtrl();

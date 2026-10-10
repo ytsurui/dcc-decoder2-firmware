@@ -43,10 +43,10 @@ static void tick(unsigned count) {
 static void reset(unsigned speed) {
     analogMode=abcStatus=reverseBoard=0; packetDirection=1;
     memset(CV1_6,0,sizeof(CV1_6));
-    memset(CV33_43,30,sizeof(CV33_43)); CV33_43[10]=0;
+    memset(CV33_45,30,sizeof(CV33_45)); CV33_45[10]=0;
     memset(CV60_64,0,sizeof(CV60_64)); CV60_64[1]=95; CV60_64[2]=192;
     CV52=CV53=CV54=CV140=0; CV131=255;
-    CV44=CV45=30; CV60_64[3]=30;
+    CV33_45[11]=CV33_45[12]=30; CV60_64[3]=30;
     CV55_57[0]=30; CV55_57[1]=10; CV55_57[2]=40; CV138=175;
     CV58=255; CV59=3;
     ABCworkedFlag=ABCdirectionReverseFlag=0;
@@ -171,7 +171,7 @@ static void testManualOverride(void) {
     assert(now_spd==0 && outputDirection==2);
     tick(63); assert(now_spd==0); tick(1); assert(now_spd==1);
     /* Cancellation never changes direction-dependent lights. */
-    reset(8); CV33_43[2]=0x40; CV33_43[3]=0x80;
+    reset(8); CV33_45[2]=0x40; CV33_45[3]=0x80;
     funcCtrl(1,0x10,1); command(2,12); tick(16); command(1,12);
     tick(400); assert((funcPortStat & 3)==1 && outputDirection==1);
 }
@@ -201,13 +201,13 @@ static void testABC(void) {
     abcStatus=2; tick(16); assert(now_spd==0);
 }
 static void testLightsAndModes(void) {
-    reset(4); CV33_43[2]=0x40; CV33_43[3]=0x80;
+    reset(4); CV33_45[2]=0x40; CV33_45[3]=0x80;
     funcCtrl(1,0x10,1); assert((funcPortStat & 3)==1);
     command(2,8); funcCtrl(1,0x10,2);
     tick(64+254); assert((funcPortStat & 3)==1);
     tick(1); assert((funcPortStat & 3)==2 && funcSetDirection==2);
     /* A different function group arriving at the switch must not suppress F0 refresh. */
-    reset(4); CV33_43[2]=0x40; CV33_43[3]=0x80;
+    reset(4); CV33_45[2]=0x40; CV33_45[3]=0x80;
     funcTable1=0x11;
     funcCtrl(1,0x10,1); command(2,8); tick(64+254);
     clock_receiver_train_ctrl();
@@ -215,21 +215,21 @@ static void testLightsAndModes(void) {
     assert(funcSetDirection==2);
     clockReceiverFuncCtrl(); assert((funcPortStat & 3)==2);
     /* Function OFF while slowing remains OFF after reversal. */
-    reset(4); CV33_43[2]=0x40; CV33_43[3]=0x80;
+    reset(4); CV33_45[2]=0x40; CV33_45[3]=0x80;
     funcCtrl(1,0x10,1); command(2,8); funcCtrl(1,0,2);
     tick(64+255); assert((funcPortStat & 3)==0);
     /* Always-on direction-dependent lights follow the same motor direction. */
-    reset(4); CV33_43[2]=0x5F; CV33_43[3]=0x9F;
+    reset(4); CV33_45[2]=0x5F; CV33_45[3]=0x9F;
     packetDirection=2; command(2,8);
     clockReceiverFuncCtrlSub(0); clockReceiverFuncCtrlSub(1);
     assert((funcPortStat & 3)==1);
     tick(64+255); clockReceiverFuncCtrlSub(0); clockReceiverFuncCtrlSub(1);
     assert((funcPortStat & 3)==2);
     /* Board direction mapping is applied once, not twice. */
-    reset(4); reverseBoard=1; CV33_43[2]=0x40; CV33_43[3]=0x80;
+    reset(4); reverseBoard=1; CV33_45[2]=0x40; CV33_45[3]=0x80;
     command(1,8); funcCtrl(1,0x10,1); assert((funcPortStat & 3)==1);
     tick(64+255); assert((funcPortStat & 3)==2);
-    reset(4); CV33_43[10]=1; enforceStoppedBridge=0;
+    reset(4); CV33_45[10]=1; enforceStoppedBridge=0;
     command(2,8); funcCtrl(1,0x10,2);
     assert(reversalState==REV_IDLE && funcSetDirection==2);
     reset(4); command(2,8); analogMode=1; enforceStoppedBridge=0;
