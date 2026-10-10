@@ -131,10 +131,8 @@ uint8_t CV29;		// Decoder Configuration
 //uint8_t CV35;		// Func1 Address Configuration		
 //uint8_t CV36;		// Func2 Address Configuration
 
-uint8_t CV33_43[11];
+uint8_t CV33_45[13]; // Index = CV number - 33; [11]: front override, [12]: rear override
 
-uint8_t CV44;		// Front group headlight override
-uint8_t CV45;		// Rear group headlight override
 
 /*
 #ifndef ATTINY806_FUNC

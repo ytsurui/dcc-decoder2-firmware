@@ -229,17 +229,15 @@ void load_cv(void)
 	}
 #endif
 		
+	for (i = 0; i < 13; i++) {
+		CV33_45[i] = read_cv_raw(33 + i);
+		setFuncTable(CV33_45[i] & 0x1F);
+	}
 	for (i = 0; i < 11; i++) {
-		CV33_43[i] = read_cv_raw(33 + i);
-		setFuncTable(CV33_43[i] & 0x1F);
 		CV112_CV122[i] = read_cv_raw(112 + i);
 	}
 	CV123 = read_cv_raw(123);
 	CV124 = read_cv_raw(124);
-	CV44 = read_cv_raw(44);
-	CV45 = read_cv_raw(45);
-	setFuncTable(CV44 & 0x1F);
-	setFuncTable(CV45 & 0x1F);
 	
 	CV50 = read_cv_raw(50);
 	
@@ -380,16 +378,10 @@ void write_cv_byte(uint16_t CVnum, uint8_t data)
 		case 41:
 		case 42:
 		case 43:
-			CV33_43[CVnum2 - 33] = data;
-			setFuncTable(CV33_43[CVnum2 - 33] & 0x1F);
-			break;
 		case 44:
-			CV44 = data;
-			setFuncTable(CV44 & 0x1F);
-			break;
 		case 45:
-			CV45 = data;
-			setFuncTable(CV45 & 0x1F);
+			CV33_45[CVnum2 - 33] = data;
+			setFuncTable(CV33_45[CVnum2 - 33] & 0x1F);
 			break;
 		case 50:
 			CV50 = data;

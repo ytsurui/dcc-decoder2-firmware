@@ -38,6 +38,30 @@ int main(void) {
     write_cv_byte(8, 8); /* User-visible factory reset. */
     assert(CV123 == 0x87 && read_cv(123) == 0x87);
     assert(CV124 == 0x38 && read_cv(124) == 0x38);
+    /* Check both ends and every element of the unified CV33-CV45 range. */
+    for (uint8_t cv = 33; cv <= 45; ++cv) {
+        assert(CV33_45[cv - 33] == read_cv(cv));
+        write_cv_byte(cv, cv - 32);
+        assert(CV33_45[cv - 33] == cv - 32);
+        assert(read_cv(cv) == cv - 32);
+        CV33_45[cv - 33] = 0;
+    }
+    load_cv();
+    for (uint8_t cv = 33; cv <= 45; ++cv)
+        assert(CV33_45[cv - 33] == cv - 32);
+    for (uint8_t i = 0; i < 11; ++i)
+        assert(CV112_CV122[i] == read_cv(112 + i));
+    assert(CV123 == 0x87 && CV124 == 0x38);
+    write_cv_bit(44, 0x0F);
+    assert(CV33_45[11] == (12 | 0x80));
+    assert(read_cv(44) == (12 | 0x80));
+    write_cv_bit(45, 0x00);
+    assert(CV33_45[12] == 12 && read_cv(45) == 12);
+    write_cv_byte(8, 8);
+    assert(CV33_45[0] == CV33_DEFAULT);
+    assert(CV33_45[10] == CV43_DEFAULT);
+    assert(CV33_45[11] == CV44_DEFAULT);
+    assert(CV33_45[12] == CV45_DEFAULT);
     return 0;
 }
 '''
