@@ -55,8 +55,8 @@
 #else
 #define CV43_DEFAULT	0b00000000		// MotorDriver Function Enable (0: Disabled / 1: Enabled)
 #endif
-#define CV44_DEFAULT	0b00111110		// Headlight On Backward (Disabled)
-#define CV45_DEFAULT	0b00111110		// Headlight On Forward (Disabled)
+#define CV44_DEFAULT	0b00111110		// Front group headlight override (Disabled)
+#define CV45_DEFAULT	0b00111110		// Rear group headlight override (Disabled)
 //#define CV50_DEFAULT	0b11001001		// Analog Function Enable Flag (bit7-0: Func8-Func1 Enable)
 #define CV50_DEFAULT	0b11111111		// Analog Function Enable Flag (bit7-0: Func8-Func1 Enable)
 
@@ -133,8 +133,8 @@ uint8_t CV29;		// Decoder Configuration
 
 uint8_t CV33_43[11];
 
-uint8_t CV44;		// Headlight Only Function Backward
-uint8_t CV45;		// Headlight Only Function Forward
+uint8_t CV44;		// Front group headlight override
+uint8_t CV45;		// Rear group headlight override
 
 #ifndef ATTINY806_FUNC
 uint8_t CV47;		// PWM KickStart Configuration
