@@ -38,7 +38,7 @@
   </tr>
   <tr>
     <td>7</td>
-    <td>1</td>
+    <td>7</td>
     <td>バージョン番号</td>
   </tr>
   <tr>
@@ -175,7 +175,7 @@
     <td>50</td>
     <td>255</td>
     <td>アナログ走行時のファンクション有効化フラグ
-    <br>(bit8: Func8, bit7: Func7, ..., bit0: Func0)</td>
+    <br>(bit7: Func8, bit6: Func7, ..., bit0: Func1)</td>
   </tr>
   <tr>
     <td>51</td>
@@ -319,6 +319,20 @@
     <td>242</td>
     <td>Func8 (後進) 照度およびファンクション種別
     <br>初期値: 照度15 (最大) / テールライト右</td>
+  </tr>
+  <tr>
+    <td>123</td>
+    <td>135 (0x87)</td>
+    <td>前位ファンクショングループ
+    <br>bit0～bit7: Func1～Func8。1の出力をグループに含める。
+    <br>初期値: Func1・Func2・Func3・Func8</td>
+  </tr>
+  <tr>
+    <td>124</td>
+    <td>56 (0x38)</td>
+    <td>後位ファンクショングループ
+    <br>bit0～bit7: Func1～Func8。1の出力をグループに含める。
+    <br>初期値: Func4・Func5・Func6</td>
   </tr>
   <tr>
     <td>131</td>

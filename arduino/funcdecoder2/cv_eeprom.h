@@ -133,8 +133,8 @@ uint8_t __attribute__((section(".eeprom"))) val[] =
 	/* 120 */	CV120_DEFAULT,	// Func7 Type (Roomlight/Normal)
 	/* 121 */	CV121_DEFAULT,	// Func8 Forward Type (Headlight)
 	/* 122 */	CV122_DEFAULT,	// Func8 Backward Type (Taillight)
-	/* 123 */	0x00,
-	/* 124 */	0x00,
+	/* 123 */	CV123_DEFAULT,	// Front function group
+	/* 124 */	CV124_DEFAULT,	// Rear function group
 	/* 125 */	0x00,
 	/* 126 */	0x00,
 	/* 127 */	0x00,

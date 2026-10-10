@@ -126,6 +126,8 @@ void initialize_cv(void)
 	write_eeprom(120, CV120_DEFAULT);
 	write_eeprom(121, CV121_DEFAULT);
 	write_eeprom(122, CV122_DEFAULT);
+	write_eeprom(123, CV123_DEFAULT);
+	write_eeprom(124, CV124_DEFAULT);
 /*
 #ifndef ATTINY806_FUNC
 	write_eeprom(131, CV131_DEFAULT);
@@ -164,7 +166,7 @@ void setFuncTable(uint8_t funcNum) {
 	} else if (funcNum <= 20) {
 		funcTable4 |= (1 << (funcNum - 13));
 	} else if (funcNum <= 28) {
-		funcTable5 |= (1 << (funcNum - 20));
+		funcTable5 |= (1 << (funcNum - 21));
 	}
 }
 
@@ -232,15 +234,15 @@ void load_cv(void)
 	}
 #endif
 */
+	for (i = 0; i < 13; i++) {
+		CV33_45[i] = read_cv_raw(33 + i);
+		setFuncTable(CV33_45[i] & 0x1F);
+	}
 	for (i = 0; i < 11; i++) {
-		CV33_43[i] = read_cv_raw(33 + i);
-		setFuncTable(CV33_43[i] & 0x1F);
 		CV112_CV122[i] = read_cv_raw(112 + i);
 	}
-	CV44 = read_cv_raw(44);
-	CV45 = read_cv_raw(45);
-	setFuncTable(CV44 & 0x1F);
-	setFuncTable(CV45 & 0x1F);
+	CV123 = read_cv_raw(123);
+	CV124 = read_cv_raw(124);
 	
 	CV50 = read_cv_raw(50);
 
@@ -384,16 +386,10 @@ void write_cv_byte(uint16_t CVnum, uint8_t data)
 		case 41:
 		case 42:
 		case 43:
-			CV33_43[CVnum2 - 33] = data;
-			setFuncTable(CV33_43[CVnum2 - 33] & 0x1F);
-			break;
 		case 44:
-			CV44 = data;
-			setFuncTable(CV44 & 0x1F);
-			break;
 		case 45:
-			CV45 = data;
-			setFuncTable(CV45 & 0x1F);
+			CV33_45[CVnum2 - 33] = data;
+			setFuncTable(CV33_45[CVnum2 - 33] & 0x1F);
 			break;
 		case 50:
 			CV50 = data;
@@ -519,6 +515,12 @@ void write_cv_byte(uint16_t CVnum, uint8_t data)
 		case 121:
 		case 122:
 			CV112_CV122[CVnum2 - 112] = data;
+			break;
+		case 123:
+			CV123 = data;
+			break;
+		case 124:
+			CV124 = data;
 			break;
 /*
 #ifndef ATTINY806_FUNC

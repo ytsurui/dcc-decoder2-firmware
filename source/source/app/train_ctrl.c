@@ -189,7 +189,7 @@ static void setspeedCommand(uint8_t direction, uint8_t speed, uint8_t emergency)
 		}
 	}
 
-	if (!spdAnalogFlag && CV33_43[10] != 1) {
+	if (!spdAnalogFlag && CV33_45[10] != 1) {
 		requestedDirection = direction;
 		if (reversalState != REV_IDLE) {
 			if ((reversalState == REV_DECEL || reversalState == REV_WAIT) &&
@@ -393,7 +393,7 @@ void setspeed_analog(uint8_t direction)
 
 void clock_receiver_train_ctrl(void)
 {
-	if (!spdAnalogFlag && CV33_43[10] != 1 && clockReversal()) return;
+	if (!spdAnalogFlag && CV33_45[10] != 1 && clockReversal()) return;
 	if (pwm_cutout_timer) {
 		pwm_cutout_timer--;
 
